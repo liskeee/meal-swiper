@@ -245,7 +245,7 @@ export default function SwipeView({
               disabled={isFree}
               className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
                 isActive
-                  ? 'bg-primary/10 ring-2 ring-primary'
+                  ? 'bg-primary/20 ring-2 ring-primary shadow-sm'
                   : 'hover:bg-slate-100 dark:hover:bg-slate-800'
               } ${isFree ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
             >
