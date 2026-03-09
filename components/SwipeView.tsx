@@ -184,100 +184,103 @@ export default function SwipeView({
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col justify-center px-4 pb-6 relative overflow-hidden">
-        {/* The Card */}
-        <div
-          ref={cardRef}
-          {...cardHandlers}
-          className="relative bg-white dark:bg-slate-800 rounded-3xl shadow-lg flex flex-col h-[70vh] w-full overflow-hidden shrink-0 cursor-grab active:cursor-grabbing select-none touch-none"
-          style={{
-            transform: `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) rotate(${rotation}deg)`,
-            transition: isDragging ? 'none' : 'transform 0.3s ease-out',
-          }}
-        >
-          {/* Image Area */}
-          <div className="relative h-[60%] w-full bg-slate-200 dark:bg-slate-700">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              alt={currentMeal.nazwa}
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-              src={currentMeal.photo_url}
-              draggable="false"
-            />
-            {/* Overlays (Tinder-style stamps) */}
-            <div
-              className="absolute top-10 left-10 border-[6px] border-red-500 text-red-500 px-4 py-1 rounded-xl font-black text-5xl uppercase rotate-[-25deg] transition-opacity z-20 pointer-events-none"
-              style={{
-                opacity: dragOffset.x < 0 ? Math.min(opacity * 1.5, 1) : 0,
-              }}
-            >
-              NIE
+        {/* Card Container (relative for absolute buttons) */}
+        <div className="relative">
+          {/* The Card */}
+          <div
+            ref={cardRef}
+            {...cardHandlers}
+            className="relative bg-white dark:bg-slate-800 rounded-3xl shadow-lg flex flex-col h-[70vh] w-full overflow-hidden shrink-0 cursor-grab active:cursor-grabbing select-none touch-none"
+            style={{
+              transform: `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) rotate(${rotation}deg)`,
+              transition: isDragging ? 'none' : 'transform 0.3s ease-out',
+            }}
+          >
+            {/* Image Area */}
+            <div className="relative h-[60%] w-full bg-slate-200 dark:bg-slate-700">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt={currentMeal.nazwa}
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                src={currentMeal.photo_url}
+                draggable="false"
+              />
+              {/* Overlays (Tinder-style stamps) */}
+              <div
+                className="absolute top-10 left-10 border-[6px] border-red-500 text-red-500 px-4 py-1 rounded-xl font-black text-5xl uppercase rotate-[-25deg] transition-opacity z-20 pointer-events-none"
+                style={{
+                  opacity: dragOffset.x < 0 ? Math.min(opacity * 1.5, 1) : 0,
+                }}
+              >
+                NIE
+              </div>
+              <div
+                className="absolute top-10 right-10 border-[6px] border-green-500 text-green-500 px-4 py-1 rounded-xl font-black text-5xl uppercase rotate-[25deg] transition-opacity z-20 pointer-events-none"
+                style={{
+                  opacity: dragOffset.x > 0 ? Math.min(opacity * 1.5, 1) : 0,
+                }}
+              >
+                TAK
+              </div>
             </div>
-            <div
-              className="absolute top-10 right-10 border-[6px] border-green-500 text-green-500 px-4 py-1 rounded-xl font-black text-5xl uppercase rotate-[25deg] transition-opacity z-20 pointer-events-none"
-              style={{
-                opacity: dragOffset.x > 0 ? Math.min(opacity * 1.5, 1) : 0,
-              }}
-            >
-              TAK
-            </div>
-          </div>
 
-          {/* Content Area */}
-          <div className="flex-1 p-5 flex flex-col justify-between">
-            <div>
-              <div className="flex justify-between items-start mb-2">
-                <h2 className="text-2xl font-bold leading-tight text-slate-900 dark:text-slate-100">
-                  {currentMeal.nazwa}
-                </h2>
-                <div className="bg-primary/10 dark:bg-primary/20 text-primary rounded-full px-2 py-1 text-xs font-bold whitespace-nowrap">
-                  {currentIndex + 1}/{shuffledMeals.length}
+            {/* Content Area */}
+            <div className="flex-1 p-5 flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between items-start mb-2">
+                  <h2 className="text-2xl font-bold leading-tight text-slate-900 dark:text-slate-100">
+                    {currentMeal.nazwa}
+                  </h2>
+                  <div className="bg-primary/10 dark:bg-primary/20 text-primary rounded-full px-2 py-1 text-xs font-bold whitespace-nowrap">
+                    {currentIndex + 1}/{shuffledMeals.length}
+                  </div>
+                </div>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
+                  {currentMeal.opis}
+                </p>
+              </div>
+              <div className="flex items-center gap-4 text-slate-700 dark:text-slate-300 font-medium text-sm">
+                <div className="flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[18px]">
+                    schedule
+                  </span>
+                  <span>{currentMeal.prep_time} min</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[18px]">
+                    local_fire_department
+                  </span>
+                  <span>{currentMeal.kcal_baza} kcal</span>
+                </div>
+                <div className="flex items-center gap-1 ml-auto">
+                  <span className="material-symbols-outlined text-[18px]">
+                    restaurant
+                  </span>
+                  <span>Główne</span>
                 </div>
               </div>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
-                {currentMeal.opis}
-              </p>
-            </div>
-            <div className="flex items-center gap-4 text-slate-700 dark:text-slate-300 font-medium text-sm">
-              <div className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-[18px]">
-                  schedule
-                </span>
-                <span>{currentMeal.prep_time} min</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-[18px]">
-                  local_fire_department
-                </span>
-                <span>{currentMeal.kcal_baza} kcal</span>
-              </div>
-              <div className="flex items-center gap-1 ml-auto">
-                <span className="material-symbols-outlined text-[18px]">
-                  restaurant
-                </span>
-                <span>Główne</span>
-              </div>
             </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-center gap-6 mt-6 shrink-0">
-          <button
-            onClick={handleSwipeLeft}
-            className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full shadow-md flex items-center justify-center text-red-500 border border-slate-100 dark:border-slate-700 transition-transform active:scale-90"
-          >
-            <span className="material-symbols-outlined text-3xl font-bold">
-              close
-            </span>
-          </button>
-          <button
-            onClick={handleSwipeRight}
-            className="w-16 h-16 bg-primary rounded-full shadow-md flex items-center justify-center text-white transition-transform active:scale-90 shadow-primary/30"
-          >
-            <span className="material-symbols-outlined text-3xl font-bold">
-              favorite
-            </span>
-          </button>
+          {/* Action Buttons (absolute on card) */}
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-6 z-30">
+            <button
+              onClick={handleSwipeLeft}
+              className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full shadow-md flex items-center justify-center text-red-500 border border-slate-100 dark:border-slate-700 transition-transform active:scale-90"
+            >
+              <span className="material-symbols-outlined text-3xl font-bold">
+                close
+              </span>
+            </button>
+            <button
+              onClick={handleSwipeRight}
+              className="w-16 h-16 bg-primary rounded-full shadow-md flex items-center justify-center text-white transition-transform active:scale-90 shadow-primary/30"
+            >
+              <span className="material-symbols-outlined text-3xl font-bold">
+                favorite
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Hint */}
