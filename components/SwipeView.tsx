@@ -1,9 +1,18 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import type { Meal, DayKey, WeeklyPlan } from '@/types'
 import { useSwipe } from '@/hooks/useSwipe'
 import { DAY_KEYS, DAY_NAMES_MAP } from '@/lib/utils'
+
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
 
 interface SwipeViewProps {
   meals: Meal[]
@@ -22,6 +31,7 @@ export default function SwipeView({
   weeklyPlan,
   onSkipAll,
 }: SwipeViewProps) {
+  const [shuffledMeals] = useState<Meal[]>(() => shuffleArray(meals))
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showSuccess, setShowSuccess] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
@@ -38,10 +48,10 @@ export default function SwipeView({
   const currentDayIndex = currentDay ? emptyDays.indexOf(currentDay) + 1 : 0
   const totalDays = emptyDays.length
 
-  const currentMeal = meals[currentIndex]
+  const currentMeal = shuffledMeals[currentIndex]
 
   const nextCard = useCallback(() => {
-    if (currentIndex >= meals.length - 1) {
+    if (currentIndex >= shuffledMeals.length - 1) {
       setShowConfetti(true)
       setShowSuccess(true)
       setTimeout(() => {
@@ -51,7 +61,7 @@ export default function SwipeView({
       setCurrentIndex((prev) => prev + 1)
       reset()
     }
-  }, [currentIndex, meals.length, onComplete, reset])
+  }, [currentIndex, shuffledMeals.length, onComplete, reset])
 
   const handleSwipeRight = useCallback(() => {
     if (!currentMeal) return
@@ -240,7 +250,7 @@ export default function SwipeView({
                   {currentMeal.nazwa}
                 </h2>
                 <div className="bg-primary/10 dark:bg-primary/20 text-primary rounded-full px-2 py-1 text-xs font-bold whitespace-nowrap">
-                  {currentIndex + 1}/{meals.length}
+                  {currentIndex + 1}/{shuffledMeals.length}
                 </div>
               </div>
               <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
