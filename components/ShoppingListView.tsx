@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import type { WeeklyPlan } from '@/types'
-import { useWeekDates } from '@/hooks/useWeekDates'
 import { getWeekKey } from '@/lib/utils'
 import {
   getCheckedItems,
@@ -14,16 +13,13 @@ import { generateShoppingList, type MergedIngredient } from '@/lib/shopping'
 interface ShoppingListViewProps {
   weeklyPlan: WeeklyPlan
   weekOffset: number
-  onWeekChange: (offset: number) => void
 }
 
 export default function ShoppingListView({
   weeklyPlan,
   weekOffset,
-  onWeekChange,
 }: ShoppingListViewProps) {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({})
-  const { formatWeekRange } = useWeekDates(weekOffset)
 
   const weekKey = getWeekKey(weekOffset)
 
@@ -99,25 +95,6 @@ export default function ShoppingListView({
           </div>
         </div>
       )}
-
-      {/* Week Navigation */}
-      <div className="flex items-center justify-between px-4 py-3 bg-surface-light dark:bg-surface-dark shadow-sm">
-        <button
-          onClick={() => onWeekChange?.(weekOffset - 1)}
-          className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors"
-        >
-          <span className="material-symbols-outlined">chevron_left</span>
-        </button>
-        <span className="font-semibold text-text-primary-light dark:text-text-primary-dark">
-          {formatWeekRange()}
-        </span>
-        <button
-          onClick={() => onWeekChange?.(weekOffset + 1)}
-          className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors"
-        >
-          <span className="material-symbols-outlined">chevron_right</span>
-        </button>
-      </div>
 
       {/* Main Content */}
       <main className="flex-1 p-4 overflow-y-auto">

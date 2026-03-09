@@ -1,10 +1,12 @@
 'use client'
 
+import { useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import type { ViewId } from '@/types'
 import { AppProvider, useAppContext } from '@/lib/context'
 import Navigation from '@/components/Navigation'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import { getWeekDates, formatWeekRangeShort } from '@/lib/utils'
 
 const VIEW_TITLES: Record<ViewId, string> = {
   plan: 'Plan',
@@ -20,8 +22,12 @@ function pathToViewId(pathname: string): ViewId {
 
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { mealsLoading, setCurrentSwipeDay } = useAppContext()
+  const { mealsLoading, setCurrentSwipeDay, weekOffset, setWeekOffset } = useAppContext()
   const activeView = pathToViewId(pathname)
+
+  const showWeekSelector = activeView === 'plan' || activeView === 'shopping'
+  const weekDates = useMemo(() => getWeekDates(weekOffset), [weekOffset])
+  const weekRangeShort = useMemo(() => formatWeekRangeShort(weekDates), [weekDates])
 
   if (mealsLoading) {
     return <LoadingSpinner />
@@ -40,6 +46,31 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
               {VIEW_TITLES[activeView]}
             </h1>
           </div>
+
+          {showWeekSelector && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setWeekOffset(weekOffset - 1)}
+                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <span className="material-symbols-outlined text-sm text-slate-600 dark:text-slate-400">
+                  chevron_left
+                </span>
+              </button>
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[90px] text-center">
+                {weekRangeShort}
+              </span>
+              <button
+                onClick={() => setWeekOffset(weekOffset + 1)}
+                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <span className="material-symbols-outlined text-sm text-slate-600 dark:text-slate-400">
+                  chevron_right
+                </span>
+              </button>
+            </div>
+          )}
+
           {activeView === 'swipe' && (
             <a
               href="/plan"

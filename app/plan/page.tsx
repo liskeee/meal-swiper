@@ -10,7 +10,6 @@ export default function PlanPage() {
   const {
     weeklyPlan,
     weekOffset,
-    setWeekOffset,
     removeMeal,
     toggleVacation,
     setCurrentSwipeDay,
@@ -30,7 +29,6 @@ export default function PlanPage() {
       onToggleVacation={toggleVacation}
       onGenerateShoppingList={() => router.push('/shopping')}
       weekOffset={weekOffset}
-      onWeekChange={setWeekOffset}
     />
   )
 }

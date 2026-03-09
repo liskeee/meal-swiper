@@ -12,7 +12,6 @@ interface CalendarViewProps {
   onRemoveMeal: (day: DayKey) => void
   onToggleVacation: (day: DayKey) => void
   onGenerateShoppingList: () => void
-  onWeekChange: (offset: number) => void
 }
 
 export default function CalendarView({
@@ -22,10 +21,9 @@ export default function CalendarView({
   onRemoveMeal,
   onToggleVacation,
   onGenerateShoppingList,
-  onWeekChange,
 }: CalendarViewProps) {
   const [activeMenu, setActiveMenu] = useState<DayKey | null>(null)
-  const { weekDates, formatWeekRange } = useWeekDates(weekOffset)
+  const { weekDates } = useWeekDates(weekOffset)
 
   const handleContextMenu = (e: React.MouseEvent, day: DayKey) => {
     e.preventDefault()
@@ -67,31 +65,8 @@ export default function CalendarView({
 
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-background-light dark:bg-background-dark">
-      {/* Week Navigation */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 mx-4 rounded-xl shadow-sm mb-6 mt-4">
-        <button
-          onClick={() => onWeekChange(weekOffset - 1)}
-          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-        >
-          <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">
-            chevron_left
-          </span>
-        </button>
-        <p className="text-base font-bold text-slate-800 dark:text-slate-200">
-          {formatWeekRange()}
-        </p>
-        <button
-          onClick={() => onWeekChange(weekOffset + 1)}
-          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-        >
-          <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">
-            chevron_right
-          </span>
-        </button>
-      </div>
-
       {/* Daily Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 px-4 flex-1 min-h-0 pb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 px-4 flex-1 min-h-0 pb-4 pt-4">
         {DAY_KEYS.map((day, index) => {
           const meal = weeklyPlan[day]
           const isFree = weeklyPlan[`${day}_free`]
