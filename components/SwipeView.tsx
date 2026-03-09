@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { motion, useMotionValue, useTransform, animate, type PanInfo } from 'framer-motion'
 import type { Meal, DayKey, WeeklyPlan } from '@/types'
-import { useSwipe } from '@/hooks/useSwipe'
 import { DAY_KEYS, DAY_NAMES_MAP } from '@/lib/utils'
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -23,13 +23,14 @@ interface SwipeViewProps {
   onSkipAll: () => void
 }
 
+const SWIPE_THRESHOLD = 120
+
 export default function SwipeView({
   meals,
   onSwipeRight,
   currentDay,
   onComplete,
   weeklyPlan,
-  onSkipAll,
 }: SwipeViewProps) {
   const [shuffledMeals] = useState<Meal[]>(() => shuffleArray(meals))
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -37,10 +38,12 @@ export default function SwipeView({
   const [showConfetti, setShowConfetti] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [toastText, setToastText] = useState('')
-  const cardRef = useRef<HTMLDivElement>(null)
+  const [isAnimating, setIsAnimating] = useState(false)
 
-  const { dragOffset, isDragging, rotation, opacity, handlers, animateOut, reset } =
-    useSwipe()
+  const x = useMotionValue(0)
+  const rotate = useTransform(x, [-300, 0, 300], [-18, 0, 18])
+  const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD], [0, 1])
+  const nopeOpacity = useTransform(x, [-SWIPE_THRESHOLD, 0], [1, 0])
 
   const emptyDays = weeklyPlan
     ? DAY_KEYS.filter((d) => !weeklyPlan[d] && !weeklyPlan[`${d}_free`])
@@ -59,53 +62,49 @@ export default function SwipeView({
       }, 2000)
     } else {
       setCurrentIndex((prev) => prev + 1)
-      reset()
+      x.set(0)
     }
-  }, [currentIndex, shuffledMeals.length, onComplete, reset])
+    setIsAnimating(false)
+  }, [currentIndex, shuffledMeals.length, onComplete, x])
 
   const handleSwipeRight = useCallback(() => {
-    if (!currentMeal) return
-    animateOut('right')
+    if (!currentMeal || isAnimating) return
+    setIsAnimating(true)
     const day = currentDay ? DAY_NAMES_MAP[currentDay] : 'Wybierz dzień'
     setToastText(`Dodano: ${currentMeal.nazwa} do: ${day}`)
     setShowToast(true)
     setTimeout(() => setShowToast(false), 2000)
 
-    setTimeout(() => {
+    animate(x, 600, { duration: 0.3 }).then(() => {
       onSwipeRight(currentMeal)
       nextCard()
-    }, 300)
-  }, [currentMeal, currentDay, animateOut, onSwipeRight, nextCard])
+    })
+  }, [currentMeal, currentDay, isAnimating, x, onSwipeRight, nextCard])
 
   const handleSwipeLeft = useCallback(() => {
-    animateOut('left')
-    setTimeout(() => {
+    if (isAnimating) return
+    setIsAnimating(true)
+    animate(x, -600, { duration: 0.3 }).then(() => {
       nextCard()
-    }, 300)
-  }, [animateOut, nextCard])
+    })
+  }, [isAnimating, x, nextCard])
 
-  // Wrap handlers to use our custom swipe logic
-  const cardHandlers = {
-    onMouseDown: handlers.onMouseDown,
-    onMouseMove: handlers.onMouseMove,
-    onMouseUp: () => {
-      const result = handlers.onMouseUp()
-      if (result === 'right') handleSwipeRight()
-      else if (result === 'left') handleSwipeLeft()
+  const handleDragEnd = useCallback(
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      if (isAnimating) return
+      const offset = info.offset.x
+      if (Math.abs(offset) > SWIPE_THRESHOLD) {
+        if (offset > 0) {
+          handleSwipeRight()
+        } else {
+          handleSwipeLeft()
+        }
+      } else {
+        animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 })
+      }
     },
-    onMouseLeave: () => {
-      const result = handlers.onMouseLeave()
-      if (result === 'right') handleSwipeRight()
-      else if (result === 'left') handleSwipeLeft()
-    },
-    onTouchStart: handlers.onTouchStart,
-    onTouchMove: handlers.onTouchMove,
-    onTouchEnd: () => {
-      const result = handlers.onTouchEnd()
-      if (result === 'right') handleSwipeRight()
-      else if (result === 'left') handleSwipeLeft()
-    },
-  }
+    [isAnimating, handleSwipeRight, handleSwipeLeft, x]
+  )
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -115,6 +114,14 @@ export default function SwipeView({
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleSwipeLeft, handleSwipeRight])
+
+  const handleReshuffle = useCallback(() => {
+    setShowSuccess(false)
+    setShowConfetti(false)
+    setCurrentIndex(0)
+    x.set(0)
+    setIsAnimating(false)
+  }, [x])
 
   if (showSuccess) {
     return (
@@ -141,11 +148,17 @@ export default function SwipeView({
         <div className="text-center z-10">
           <div className="text-6xl mb-4 animate-bounce">🎉</div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-            Tydzień gotowy!
+            Wszystkie propozycje przejrzane!
           </h2>
           <p className="text-slate-600 dark:text-slate-400 mt-2">
-            Wszystkie dni uzupełnione
+            Nie ma więcej kart do przejrzenia
           </p>
+          <button
+            onClick={handleReshuffle}
+            className="mt-6 px-6 py-3 bg-primary text-white rounded-full font-bold shadow-lg hover:bg-primary/90 transition-colors"
+          >
+            Losuj ponownie
+          </button>
         </div>
       </div>
     )
@@ -161,6 +174,9 @@ export default function SwipeView({
     )
   }
 
+  // Cards to show in stack (current + up to 2 behind)
+  const stackCards = shuffledMeals.slice(currentIndex, currentIndex + 3)
+
   return (
     <div className="flex-1 flex flex-col bg-background-light dark:bg-background-dark overflow-hidden relative">
       {/* Toast Notification */}
@@ -170,6 +186,7 @@ export default function SwipeView({
           <span className="font-bold">{toastText}</span>
         </div>
       )}
+
       {/* Date Pill with Progress */}
       <div className="px-4 pb-2 flex justify-center gap-2 z-10 flex-wrap">
         {totalDays > 0 && (
@@ -182,132 +199,151 @@ export default function SwipeView({
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col justify-center px-4 pb-6 relative overflow-hidden">
-        {/* Card Container (relative for absolute buttons) */}
-        <div className="relative">
-          {/* The Card */}
-          <div
-            ref={cardRef}
-            {...cardHandlers}
-            className="relative bg-white dark:bg-slate-800 rounded-3xl shadow-lg flex flex-col h-[70vh] w-full overflow-hidden shrink-0 cursor-grab active:cursor-grabbing select-none touch-none"
-            style={{
-              transform: `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) rotate(${rotation}deg)`,
-              transition: isDragging ? 'none' : 'transform 0.3s ease-out',
-            }}
-          >
-            {/* Image Area */}
-            <div className="relative h-[60%] w-full bg-slate-200 dark:bg-slate-700">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                alt={currentMeal.nazwa}
-                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                src={currentMeal.photo_url}
-                draggable="false"
-              />
-              {/* Overlays (Tinder-style stamps) */}
-              <div
-                className="absolute top-10 left-10 border-[6px] border-red-500 text-red-500 px-4 py-1 rounded-xl font-black text-5xl uppercase rotate-[-25deg] transition-opacity z-20 pointer-events-none"
-                style={{
-                  opacity: dragOffset.x < 0 ? Math.min(opacity * 1.5, 1) : 0,
-                }}
-              >
-                NIE
-              </div>
-              <div
-                className="absolute top-10 right-10 border-[6px] border-green-500 text-green-500 px-4 py-1 rounded-xl font-black text-5xl uppercase rotate-[25deg] transition-opacity z-20 pointer-events-none"
-                style={{
-                  opacity: dragOffset.x > 0 ? Math.min(opacity * 1.5, 1) : 0,
-                }}
-              >
-                TAK
-              </div>
-            </div>
+      {/* Card Stack Area */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 pb-4 relative">
+        <div className="relative w-full max-w-[400px] h-[calc(100%-80px)]">
+          {/* Stack cards (rendered bottom-to-top) */}
+          {stackCards
+            .slice()
+            .reverse()
+            .map((meal, reverseIdx) => {
+              const stackIdx = stackCards.length - 1 - reverseIdx
+              const isTop = stackIdx === 0
 
-            {/* Content Area */}
-            <div className="flex-1 p-5 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-2">
-                  <h2 className="text-2xl font-bold leading-tight text-slate-900 dark:text-slate-100">
-                    {currentMeal.nazwa}
-                  </h2>
-                  <div className="bg-primary/10 dark:bg-primary/20 text-primary rounded-full px-2 py-1 text-xs font-bold whitespace-nowrap">
-                    {currentIndex + 1}/{shuffledMeals.length}
+              if (isTop) {
+                return (
+                  <motion.div
+                    key={`card-${currentIndex}`}
+                    className="absolute inset-0 rounded-2xl shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing select-none touch-none"
+                    style={{
+                      x,
+                      rotate,
+                      zIndex: 10,
+                    }}
+                    drag="x"
+                    dragElastic={0.7}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    onDragEnd={handleDragEnd}
+                  >
+                    {/* Full image background */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      alt={meal.nazwa}
+                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      src={meal.photo_url}
+                      draggable="false"
+                    />
+
+                    {/* Swipe overlays */}
+                    <motion.div
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+                      style={{ opacity: likeOpacity }}
+                    >
+                      <div className="border-[6px] border-green-400 text-green-400 px-6 py-2 rounded-xl font-black text-4xl uppercase rotate-[-20deg] bg-black/20 backdrop-blur-sm">
+                        WYBIERAM ❤️
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+                      style={{ opacity: nopeOpacity }}
+                    >
+                      <div className="border-[6px] border-red-400 text-red-400 px-6 py-2 rounded-xl font-black text-4xl uppercase rotate-[20deg] bg-black/20 backdrop-blur-sm">
+                        POMIJAM ✕
+                      </div>
+                    </motion.div>
+
+                    {/* Gradient overlay at bottom */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+
+                    {/* Content at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-5 pb-6 text-white pointer-events-none">
+                      <div className="flex justify-between items-end">
+                        <div className="flex-1 min-w-0 mr-3">
+                          <h2 className="text-2xl font-bold leading-tight drop-shadow-lg">
+                            {meal.nazwa}
+                          </h2>
+                          <p className="text-white/80 text-sm mt-1 line-clamp-2 drop-shadow">
+                            {meal.opis}
+                          </p>
+                          <div className="flex items-center gap-4 mt-3 text-sm font-medium text-white/90">
+                            <div className="flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[18px]">
+                                schedule
+                              </span>
+                              <span>{meal.prep_time} min</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[18px]">
+                                local_fire_department
+                              </span>
+                              <span>{meal.kcal_baza} kcal</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold shrink-0">
+                          {currentIndex + 1}/{shuffledMeals.length}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              }
+
+              // Background stack cards
+              const scale = 1 - stackIdx * 0.05
+              const translateY = stackIdx * 8
+              const cardOpacity = stackIdx === 1 ? 0.7 : 0.4
+
+              return (
+                <div
+                  key={`stack-${currentIndex + stackIdx}`}
+                  className="absolute inset-0 rounded-2xl shadow-xl overflow-hidden pointer-events-none"
+                  style={{
+                    transform: `scale(${scale}) translateY(${translateY}px)`,
+                    opacity: cardOpacity,
+                    zIndex: 10 - stackIdx,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    alt={meal.nazwa}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    src={meal.photo_url}
+                    draggable="false"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-5 pb-6 text-white">
+                    <h2 className="text-2xl font-bold leading-tight drop-shadow-lg">
+                      {meal.nazwa}
+                    </h2>
                   </div>
                 </div>
-                <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
-                  {currentMeal.opis}
-                </p>
-              </div>
-              <div className="flex items-center gap-4 text-slate-700 dark:text-slate-300 font-medium text-sm">
-                <div className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[18px]">
-                    schedule
-                  </span>
-                  <span>{currentMeal.prep_time} min</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[18px]">
-                    local_fire_department
-                  </span>
-                  <span>{currentMeal.kcal_baza} kcal</span>
-                </div>
-                <div className="flex items-center gap-1 ml-auto">
-                  <span className="material-symbols-outlined text-[18px]">
-                    restaurant
-                  </span>
-                  <span>Główne</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons (absolute on card) */}
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-6 z-30">
-            <button
-              onClick={handleSwipeLeft}
-              className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full shadow-md flex items-center justify-center text-red-500 border border-slate-100 dark:border-slate-700 transition-transform active:scale-90"
-            >
-              <span className="material-symbols-outlined text-3xl font-bold">
-                close
-              </span>
-            </button>
-            <button
-              onClick={handleSwipeRight}
-              className="w-16 h-16 bg-primary rounded-full shadow-md flex items-center justify-center text-white transition-transform active:scale-90 shadow-primary/30"
-            >
-              <span className="material-symbols-outlined text-3xl font-bold">
-                favorite
-              </span>
-            </button>
-          </div>
+              )
+            })}
         </div>
 
-        {/* Hint */}
-        <div className="text-center mt-4 lg:mt-6">
-          <p className="text-slate-400 dark:text-slate-500 text-xs lg:text-sm">
-            użyj klawiszy strzałek lub przeciągnij kartę
-          </p>
-          <div className="hidden lg:flex items-center justify-center gap-4 mt-3">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800">
-              <span className="material-symbols-outlined text-red-500">
-                arrow_back
-              </span>
-              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                Pomiń
-              </span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800">
-              <span className="material-symbols-outlined text-green-500">
-                arrow_forward
-              </span>
-              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                Wybierz
-              </span>
-            </div>
-          </div>
+        {/* Action Buttons */}
+        <div className="flex items-center justify-center gap-8 h-20 shrink-0">
+          <button
+            onClick={handleSwipeLeft}
+            disabled={isAnimating}
+            className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full shadow-lg flex items-center justify-center text-red-500 border-2 border-red-100 dark:border-red-900/30 transition-transform active:scale-90 hover:scale-105 disabled:opacity-50"
+          >
+            <span className="material-symbols-outlined text-3xl font-bold">
+              close
+            </span>
+          </button>
+          <button
+            onClick={handleSwipeRight}
+            disabled={isAnimating}
+            className="w-16 h-16 bg-primary rounded-full shadow-lg shadow-primary/30 flex items-center justify-center text-white transition-transform active:scale-90 hover:scale-105 disabled:opacity-50"
+          >
+            <span className="material-symbols-outlined text-3xl font-bold">
+              favorite
+            </span>
+          </button>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

@@ -3,26 +3,28 @@ import { render, screen, fireEvent, act } from '@testing-library/react'
 import SwipeView from '@/components/SwipeView'
 import type { Meal, WeeklyPlan } from '@/types'
 
-// Mock useSwipe hook
-vi.mock('@/hooks/useSwipe', () => ({
-  useSwipe: () => ({
-    dragOffset: { x: 0, y: 0 },
-    isDragging: false,
-    rotation: 0,
-    opacity: 0,
-    handlers: {
-      onMouseDown: vi.fn(),
-      onMouseMove: vi.fn(),
-      onMouseUp: vi.fn(() => null),
-      onMouseLeave: vi.fn(() => null),
-      onTouchStart: vi.fn(),
-      onTouchMove: vi.fn(),
-      onTouchEnd: vi.fn(() => null),
-    },
-    animateOut: vi.fn(),
-    reset: vi.fn(),
-  }),
-}))
+// Mock framer-motion
+vi.mock('framer-motion', () => {
+  const React = require('react')
+
+  const motionDiv = React.forwardRef(
+    (props: Record<string, unknown>, ref: React.Ref<HTMLDivElement>) => {
+      const {
+        drag, dragElastic, dragConstraints, onDragEnd,
+        style: _style, ...rest
+      } = props
+      return React.createElement('div', { ...rest, ref })
+    }
+  )
+  motionDiv.displayName = 'motion.div'
+
+  return {
+    motion: { div: motionDiv },
+    useMotionValue: () => ({ get: () => 0, set: vi.fn() }),
+    useTransform: () => ({ get: () => 0 }),
+    animate: vi.fn(() => Promise.resolve()),
+  }
+})
 
 const mockMeal: Meal = {
   id: '1',
@@ -78,8 +80,7 @@ describe('SwipeView', () => {
     expect((imgs[0] as HTMLImageElement).src).not.toBe('')
   })
 
-  it('clicking heart button triggers swipe right flow', () => {
-    vi.useFakeTimers()
+  it('clicking heart button triggers swipe right flow', async () => {
     render(<SwipeView {...defaultProps} />)
 
     const buttons = screen.getAllByRole('button')
@@ -87,16 +88,16 @@ describe('SwipeView', () => {
       btn.querySelector('.material-symbols-outlined')?.textContent === 'favorite'
     )
     expect(heartButton).toBeTruthy()
-    fireEvent.click(heartButton!)
 
-    vi.advanceTimersByTime(300)
-    // Should be called with whichever meal is first after shuffle
+    await act(async () => {
+      fireEvent.click(heartButton!)
+    })
+
+    // animate() resolves immediately in mock, so onSwipeRight should be called
     expect(defaultProps.onSwipeRight).toHaveBeenCalled()
-    vi.useRealTimers()
   })
 
   it('clicking close button moves to next card', async () => {
-    vi.useFakeTimers()
     render(<SwipeView {...defaultProps} />)
 
     // Get the currently displayed meal name
@@ -113,11 +114,14 @@ describe('SwipeView', () => {
 
     await act(async () => {
       fireEvent.click(closeButton!)
-      vi.advanceTimersByTime(300)
+      // Let the animate() promise microtask flush
+      await new Promise((r) => setTimeout(r, 0))
     })
 
-    expect(screen.getByText(secondMeal)).toBeInTheDocument()
-    vi.useRealTimers()
+    // Both meals are in the stack; after swipe the second becomes the top card's h2
+    const headings = screen.getAllByRole('heading', { level: 2 })
+    // The first heading should be the new top card
+    expect(headings[0].textContent).toBe(secondMeal)
   })
 
   it('renders "Brak więcej posiłków" when no meals', () => {
@@ -125,14 +129,17 @@ describe('SwipeView', () => {
     expect(screen.getByText('Brak więcej posiłków')).toBeInTheDocument()
   })
 
-  it('shows toast with meal name on swipe right', () => {
+  it('shows toast with meal name on swipe right', async () => {
     render(<SwipeView {...defaultProps} />)
 
     const buttons = screen.getAllByRole('button')
     const heartButton = buttons.find(btn =>
       btn.querySelector('.material-symbols-outlined')?.textContent === 'favorite'
     )
-    fireEvent.click(heartButton!)
+
+    await act(async () => {
+      fireEvent.click(heartButton!)
+    })
 
     expect(screen.getByText(/Dodano:/)).toBeInTheDocument()
   })
