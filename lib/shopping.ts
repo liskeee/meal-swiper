@@ -105,11 +105,40 @@ export interface MergedIngredient {
   normalizedName: string
 }
 
+// Składniki które zawsze są w domu — nie dodawaj do listy zakupów
+const PANTRY_STAPLES = new Set([
+  'sól', 'sol', 'sól morska', 'sól kuchenna',
+  'pieprz', 'pieprzu', 'czarny pieprz', 'pieprz czarny', 'pieprz biały',
+  'oliwa', 'oliwa z oliwek', 'olej', 'olej roślinny', 'olej rzepakowy', 'olej słonecznikowy', 'olej kokosowy',
+  'masło', 'cukier', 'cukier biały', 'cukier brązowy', 'cukier puder',
+  'mąka', 'maka', 'mąka pszenna', 'maka pszenna',
+  'woda',
+  'ocet', 'ocet winny', 'ocet balsamiczny', 'ocet ryżowy', 'ocet jabłkowy',
+  'oregano', 'bazylia', 'tymianek', 'rozmaryn', 'majeranek',
+  'papryka słodka', 'papryka ostra', 'papryka wędzona',
+  'kumin', 'kminek', 'kmin', 'kolendra mielona',
+  'czosnek w proszku', 'cebula w proszku',
+  'liść laurowy', 'liście laurowe', 'liscie laurowe',
+  'vegeta', 'przyprawa warzywna', 'bulion', 'kostka bulionowa',
+  'proszek do pieczenia', 'soda oczyszczona',
+  'cynamon', 'gałka muszkatołowa', 'imbir mielony', 'kurkuma',
+  'chili', 'papryczka chili', 'płatki chili',
+  'sezam', 'ziarna sezamu',
+])
+
+export function isPantryStaple(name: string): boolean {
+  const normalized = normalizeIngredientName(name)
+  return PANTRY_STAPLES.has(normalized)
+}
+
+
 export function generateShoppingList(weeklyPlan: WeeklyPlan): MergedIngredient[] {
   const ingredientMap = new Map<string, { name: string; amount: string }>()
 
   const addIngredients = (ingredients: Ingredient[]) => {
     for (const ing of ingredients) {
+      // Pomiń podstawowe składniki zawsze obecne w domu
+      if (isPantryStaple(ing.name)) continue
       const normalized = normalizeIngredientName(ing.name)
       const existing = ingredientMap.get(normalized)
       if (existing) {
@@ -148,3 +177,4 @@ export function generateShoppingList(weeklyPlan: WeeklyPlan): MergedIngredient[]
     .map(([normalizedName, { name, amount }]) => ({ name, amount, normalizedName }))
     .sort((a, b) => a.normalizedName.localeCompare(b.normalizedName, 'pl'))
 }
+
