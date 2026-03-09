@@ -1,0 +1,33 @@
+# Gitleaks configuration for meal-swiper
+# https://github.com/gitleaks/gitleaks
+
+title = "meal-swiper gitleaks config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "cloudflare-api-token"
+description = "Cloudflare API Token"
+regex = '''(?i)(cloudflare[_\-\s]?(api[_\-\s]?)?token\s*[:=]\s*)[A-Za-z0-9_-]{40}'''
+tags = ["cloudflare", "api", "token"]
+
+[[rules]]
+id = "notion-integration-token"
+description = "Notion Integration Token"
+regex = '''ntn_[A-Za-z0-9]{40,}'''
+tags = ["notion", "token"]
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+  ".gitleaks.toml",
+  "node_modules",
+  ".next",
+  "dist",
+  "out",
+]
+regexes = [
+  # Placeholder value inserted by filter-repo
+  "REDACTED_API_KEY",
+]
