@@ -22,10 +22,9 @@ function pathToViewId(pathname: string): ViewId {
 
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { mealsLoading, setCurrentSwipeDay, weekOffset, setWeekOffset } = useAppContext()
+  const { mealsLoading, weekOffset, setWeekOffset } = useAppContext()
   const activeView = pathToViewId(pathname)
 
-  const showWeekSelector = activeView === 'plan' || activeView === 'shopping'
   const weekDates = useMemo(() => getWeekDates(weekOffset), [weekOffset])
   const weekRangeShort = useMemo(() => formatWeekRangeShort(weekDates), [weekDates])
 
@@ -41,39 +40,27 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
             </h1>
           </div>
 
-          {showWeekSelector && (
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setWeekOffset(weekOffset - 1)}
-                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                <span className="material-symbols-outlined text-sm text-slate-600 dark:text-slate-400">
-                  chevron_left
-                </span>
-              </button>
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[90px] text-center">
-                {weekRangeShort}
-              </span>
-              <button
-                onClick={() => setWeekOffset(weekOffset + 1)}
-                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                <span className="material-symbols-outlined text-sm text-slate-600 dark:text-slate-400">
-                  chevron_right
-                </span>
-              </button>
-            </div>
-          )}
-
-          {activeView === 'swipe' && (
-            <a
-              href="/plan"
-              onClick={() => setCurrentSwipeDay(null)}
-              className="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-primary px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setWeekOffset(weekOffset - 1)}
+              className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-              Pomiń wszystkie
-            </a>
-          )}
+              <span className="material-symbols-outlined text-sm text-slate-600 dark:text-slate-400">
+                chevron_left
+              </span>
+            </button>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[90px] text-center">
+              {weekRangeShort}
+            </span>
+            <button
+              onClick={() => setWeekOffset(weekOffset + 1)}
+              className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span className="material-symbols-outlined text-sm text-slate-600 dark:text-slate-400">
+                chevron_right
+              </span>
+            </button>
+          </div>
         </header>
 
         {/* Scrollable Content */}
