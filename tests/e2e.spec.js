@@ -19,7 +19,7 @@ test.describe('Meal Swiper E2E Tests', () => {
     await expect(page.locator('text=Lista zakupów')).toBeVisible();
 
     await page.click('text=Plan');
-    await expect(page.locator('text=Poniedziałek')).toBeVisible();
+    await expect(page.locator('[data-testid="day-card-mon"]')).toBeVisible();
   });
 
   test('should assign a meal via swipe from nav', async ({ page }) => {
