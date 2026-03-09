@@ -1,49 +1,51 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import Navigation from '@/components/Navigation'
 
+// Mock next/link to render as a plain anchor
+vi.mock('next/link', () => ({
+  default: ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => (
+    <a href={href} {...props}>{children}</a>
+  ),
+}))
+
 describe('Navigation', () => {
-  it('clicking "Plan" calls onNavigate with "plan"', () => {
-    const onNavigate = vi.fn()
-    render(<Navigation activeView="swipe" onNavigate={onNavigate} />)
+  it('"Plan" link points to /plan', () => {
+    render(<Navigation activeView="swipe" />)
 
-    const planButtons = screen.getAllByText('Plan')
-    fireEvent.click(planButtons[0])
-    expect(onNavigate).toHaveBeenCalledWith('plan')
+    const planLinks = screen.getAllByText('Plan')
+    const link = planLinks[0].closest('a')
+    expect(link).toHaveAttribute('href', '/plan')
   })
 
-  it('clicking "Propozycje" calls onNavigate with "swipe"', () => {
-    const onNavigate = vi.fn()
-    render(<Navigation activeView="plan" onNavigate={onNavigate} />)
+  it('"Propozycje" link points to /swipe', () => {
+    render(<Navigation activeView="plan" />)
 
-    const swipeButtons = screen.getAllByText('Propozycje')
-    fireEvent.click(swipeButtons[0])
-    expect(onNavigate).toHaveBeenCalledWith('swipe')
+    const swipeLinks = screen.getAllByText('Propozycje')
+    const link = swipeLinks[0].closest('a')
+    expect(link).toHaveAttribute('href', '/swipe')
   })
 
-  it('clicking "Lista" calls onNavigate with "shopping"', () => {
-    const onNavigate = vi.fn()
-    render(<Navigation activeView="plan" onNavigate={onNavigate} />)
+  it('"Lista" link points to /shopping', () => {
+    render(<Navigation activeView="plan" />)
 
-    const listaButtons = screen.getAllByText('Lista')
-    fireEvent.click(listaButtons[0])
-    expect(onNavigate).toHaveBeenCalledWith('shopping')
+    const listaLinks = screen.getAllByText('Lista')
+    const link = listaLinks[0].closest('a')
+    expect(link).toHaveAttribute('href', '/shopping')
   })
 
   it('active view has bold font', () => {
-    render(<Navigation activeView="plan" onNavigate={vi.fn()} />)
+    render(<Navigation activeView="plan" />)
 
     const planLabels = screen.getAllByText('Plan')
-    // At least one of the "Plan" labels should be bold (active)
     const hasBold = planLabels.some(el => el.classList.contains('font-bold'))
     expect(hasBold).toBe(true)
   })
 
   it('inactive view does not have font-bold', () => {
-    render(<Navigation activeView="plan" onNavigate={vi.fn()} />)
+    render(<Navigation activeView="plan" />)
 
     const propLabels = screen.getAllByText('Propozycje')
-    // All "Propozycje" labels should be font-medium (not active)
     propLabels.forEach(el => {
       expect(el.classList.contains('font-bold')).toBe(false)
     })

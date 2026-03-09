@@ -1,29 +1,29 @@
 'use client'
 
-import type { ViewId, Tab } from '@/types'
+import Link from 'next/link'
+import type { ViewId } from '@/types'
 
 interface NavigationProps {
   activeView: ViewId
-  onNavigate: (view: ViewId) => void
 }
 
-const navItems: Tab[] = [
-  { id: 'plan', icon: 'calendar_month', label: 'Plan' },
-  { id: 'swipe', icon: 'view_carousel', label: 'Propozycje' },
-  { id: 'shopping', icon: 'list_alt', label: 'Lista' },
+const navItems = [
+  { id: 'plan' as ViewId, href: '/plan', icon: 'calendar_month', label: 'Plan' },
+  { id: 'swipe' as ViewId, href: '/swipe', icon: 'view_carousel', label: 'Propozycje' },
+  { id: 'shopping' as ViewId, href: '/shopping', icon: 'list_alt', label: 'Lista' },
 ]
 
-export default function Navigation({ activeView, onNavigate }: NavigationProps) {
+export default function Navigation({ activeView }: NavigationProps) {
   return (
     <>
       {/* Mobile Bottom Navigation */}
       <nav className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-4 pb-safe pt-2 flex justify-between pb-4 lg:hidden">
-        {navItems.map(({ id, icon, label }) => {
+        {navItems.map(({ id, href, icon, label }) => {
           const isActive = activeView === id
           return (
-            <button
+            <Link
               key={id}
-              onClick={() => onNavigate(id)}
+              href={href}
               className={`flex flex-1 flex-col items-center justify-center gap-1 transition-colors py-1 relative ${
                 isActive
                   ? 'text-primary'
@@ -46,7 +46,7 @@ export default function Navigation({ activeView, onNavigate }: NavigationProps) 
               >
                 {label}
               </span>
-            </button>
+            </Link>
           )
         })}
       </nav>
@@ -58,12 +58,12 @@ export default function Navigation({ activeView, onNavigate }: NavigationProps) 
             restaurant
           </span>
         </div>
-        {navItems.map(({ id, icon, label }) => {
+        {navItems.map(({ id, href, icon, label }) => {
           const isActive = activeView === id
           return (
-            <button
+            <Link
               key={id}
-              onClick={() => onNavigate(id)}
+              href={href}
               className={`flex flex-col items-center justify-center gap-2 transition-colors py-3 px-4 rounded-xl relative ${
                 isActive
                   ? 'text-primary bg-primary/10'
@@ -86,7 +86,7 @@ export default function Navigation({ activeView, onNavigate }: NavigationProps) 
               >
                 {label}
               </span>
-            </button>
+            </Link>
           )
         })}
       </nav>
