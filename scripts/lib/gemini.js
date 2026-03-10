@@ -1,6 +1,6 @@
-// Claude Opus meal generation via @anthropic-ai/sdk
+// Gemini Flash meal generation via Google Generative AI SDK
 
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const MEAL_SCHEMA = `{
   "nazwa": "string - krótka, apetyczna nazwa dania po polsku",
@@ -50,7 +50,7 @@ function buildPrompt({ count, cuisine, maxTime, existingMeals }) {
 - Max czas: ${maxTime} min
 - ZERO ryb, ZERO owoców morza, ZERO jabłek
 - ZERO zup, ZERO bulionów, ZERO żurku, ZERO rosołu — tylko dania główne (obiady/kolacje)
-- DOKŁADNE gramaturykatalogu każdego składnika (gramy, ml, sztuki z gramami w nawiasie)
+- DOKŁADNE gramatury każdego składnika (gramy, ml, sztuki z gramami w nawiasie)
 
 ## ZAKAZ duplikatów:${existingList}
 
@@ -62,37 +62,28 @@ ${MEAL_SCHEMA}`
 }
 
 export async function generateMeals({ count, cuisine, maxTime, existingMeals, apiKey }) {
-  const client = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY || apiKey,
-    timeout: 300000, // 5 minut
-    maxRetries: 2,
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || apiKey)
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.0-flash',
+    generationConfig: {
+      responseMimeType: 'application/json',
+    },
   })
 
   const prompt = buildPrompt({ count, cuisine, maxTime, existingMeals })
   const maxRetries = 3
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    console.log(`🤖 Claude Opus: generowanie przepisów (próba ${attempt}/${maxRetries})...`)
+    console.log(`🤖 Gemini Flash: generowanie przepisów (próba ${attempt}/${maxRetries})...`)
 
     try {
-      const message = await client.messages.create({
-        model: 'claude-opus-4-6',
-        max_tokens: 16000,
-        temperature: 1,
-        messages: [{ role: 'user', content: prompt }],
-      })
+      const result = await model.generateContent(prompt)
+      const response = await result.response
+      const text = response.text()
 
-      const text = message.content?.[0]?.text
       if (!text) throw new Error('Brak tekstu w odpowiedzi')
 
-      let cleaned = text.trim()
-      const jsonStart = cleaned.indexOf('[')
-      const jsonEnd = cleaned.lastIndexOf(']')
-      if (jsonStart !== -1 && jsonEnd !== -1) {
-        cleaned = cleaned.slice(jsonStart, jsonEnd + 1)
-      }
-
-      const meals = JSON.parse(cleaned)
+      const meals = JSON.parse(text)
       if (!Array.isArray(meals) || meals.length === 0) {
         throw new Error('Odpowiedź nie jest tablicą')
       }
@@ -103,13 +94,13 @@ export async function generateMeals({ count, cuisine, maxTime, existingMeals, ap
         }
       }
 
-      console.log(`✅ Wygenerowano ${meals.length} przepisów przez Claude Opus`)
+      console.log(`✅ Wygenerowano ${meals.length} przepisów przez Gemini Flash`)
       return meals
     } catch (err) {
       console.error(`❌ Próba ${attempt}: ${err.message}`)
       if (attempt === maxRetries)
         throw new Error(`Nieudane po ${maxRetries} próbach: ${err.message}`)
-      await new Promise((r) => setTimeout(r, 5000 * attempt))
+      await new Promise((r) => setTimeout(r, 2000 * attempt))
     }
   }
 }
