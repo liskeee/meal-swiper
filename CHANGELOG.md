@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/liskeee/meal-swiper/compare/v1.4.0...v1.4.1) (2026-03-10)
+
+### Bug Fixes
+
+- remove personal names, remove congrats toast, fix mobile toasts and modal layout, default theme to system ([e54e542](https://github.com/liskeee/meal-swiper/commit/e54e542da903427b84feed2cc9e272f575a04e81))
+
 # [1.4.0](https://github.com/liskeee/meal-swiper/compare/v1.3.0...v1.4.0) (2026-03-10)
 
 ### Features
