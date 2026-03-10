@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from 'framer-motion'
 import type { Meal, DayKey, WeeklyPlan } from '@/types'
-import { DAY_KEYS, DAY_NAMES_MAP, formatDateShort, getWeekDates } from '@/lib/utils'
+import { DAY_NAMES_MAP, getWeekDates } from '@/lib/utils'
 import MealModal from '@/components/MealModal'
+import DaySelector from '@/components/ui/DaySelector'
 import { useAppContext } from '@/lib/context'
 
 interface SwipeViewProps {
@@ -304,58 +305,13 @@ export default function SwipeView({
       )}
 
       {/* Day Selector */}
-      <div className="flex gap-2 px-4 py-1 sm:py-2 overflow-x-auto scrollbar-none justify-center">
-        {DAY_KEYS.map((day, idx) => {
-          const meal = weeklyPlan[day]
-          const isFree = weeklyPlan[`${day}_free`]
-          const isActive = currentDay === day
-          const shortName = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt'][idx]
-          const dateLabel = weekDates[idx] ? formatDateShort(weekDates[idx]) : ''
-
-          return (
-            <button
-              key={day}
-              onClick={() => !isFree && onDaySelect?.(day)}
-              disabled={isFree}
-              className={`flex flex-col items-center gap-1 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl transition-all ${
-                isActive
-                  ? 'bg-primary/20 ring-2 ring-primary shadow-sm'
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-800'
-              } ${isFree ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
-            >
-              {/* Thumbnail */}
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-slate-800 shrink-0">
-                {meal ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={meal.photo_url}
-                    alt={meal.nazwa}
-                    className="w-full h-full object-cover"
-                  />
-                ) : isFree ? (
-                  <span className="text-lg">✈️</span>
-                ) : (
-                  <span className="material-symbols-outlined text-slate-400 text-[20px]">
-                    restaurant_menu
-                  </span>
-                )}
-              </div>
-              {/* Day name */}
-              <span
-                className={`text-xs font-semibold ${
-                  isActive ? 'text-primary' : 'text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                {shortName}
-              </span>
-              {/* Date */}
-              {dateLabel && (
-                <span className="text-[10px] text-slate-400 hidden sm:block">{dateLabel}</span>
-              )}
-            </button>
-          )
-        })}
-      </div>
+      <DaySelector
+        weeklyPlan={weeklyPlan}
+        weekDates={weekDates}
+        selectedDay={currentDay}
+        onSelect={(day) => onDaySelect?.(day)}
+        showThumbnails
+      />
 
       {/* Card Stack Area */}
       <div className="flex-1 flex flex-col items-center px-4 pb-2 relative min-h-0">
