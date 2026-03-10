@@ -144,7 +144,8 @@ export default function CalendarView({
                     </p>
                     {meal.nazwa && meal.prep_time && (
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        {meal.prep_time} min &bull; {meal.kcal_baza} kcal
+                        {meal.prep_time} min &bull;{' '}
+                        {Math.round((meal.kcal_baza * settings.people) / 2)} kcal
                       </p>
                     )}
                   </div>

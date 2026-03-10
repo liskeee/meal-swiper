@@ -5,6 +5,7 @@ import type { WeeklyPlan } from '@/types'
 import { getWeekKey } from '@/lib/utils'
 import { getCheckedItems, saveCheckedItems, removeCheckedItems } from '@/lib/storage'
 import { generateShoppingList } from '@/lib/shopping'
+import { useAppContext } from '@/lib/context'
 
 interface ShoppingListViewProps {
   weeklyPlan: WeeklyPlan
@@ -12,13 +13,17 @@ interface ShoppingListViewProps {
 }
 
 export default function ShoppingListView({ weeklyPlan, weekOffset }: ShoppingListViewProps) {
+  const { settings } = useAppContext()
   const weekKey = getWeekKey(weekOffset)
 
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>(() =>
     typeof window !== 'undefined' ? getCheckedItems(weekKey) : {}
   )
 
-  const items = useMemo(() => generateShoppingList(weeklyPlan), [weeklyPlan])
+  const items = useMemo(
+    () => generateShoppingList(weeklyPlan, settings.people),
+    [weeklyPlan, settings.people]
+  )
 
   const syncCheckedToServer = (newChecked: Record<string, boolean>) => {
     fetch('/api/shopping-checked', {

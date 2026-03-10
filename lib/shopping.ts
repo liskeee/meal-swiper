@@ -1,4 +1,5 @@
 import type { Ingredient, WeeklyPlan } from '@/types'
+import { scaleIngredient } from '@/lib/scaling'
 
 interface ParsedAmount {
   value: number
@@ -256,12 +257,13 @@ function capitalizeFirst(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
 }
 
-export function generateShoppingList(weeklyPlan: WeeklyPlan): MergedIngredient[] {
+export function generateShoppingList(weeklyPlan: WeeklyPlan, people = 2): MergedIngredient[] {
   const ingredientMap = new Map<string, { name: string; amount: string }>()
 
   const addIngredients = (ingredients: Ingredient[]) => {
-    for (const ing of ingredients) {
-      if (isPantryStaple(ing.name)) continue
+    for (const rawIng of ingredients) {
+      if (isPantryStaple(rawIng.name)) continue
+      const ing = scaleIngredient(rawIng, people)
       const normalized = normalizeIngredientName(ing.name)
       const existing = ingredientMap.get(normalized)
       if (existing) {

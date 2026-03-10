@@ -395,7 +395,10 @@ export default function SwipeView({
                               <span className="material-symbols-outlined text-[18px]">
                                 local_fire_department
                               </span>
-                              <span>{meal.kcal_baza} kcal</span>
+                              <span>{Math.round((meal.kcal_baza * settings.people) / 2)} kcal</span>
+                              <span className="text-white/60 text-xs">
+                                dla {settings.people} os.
+                              </span>
                             </div>
                           </div>
                         </div>
