@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/liskeee/meal-swiper/compare/v1.1.2...v1.1.3) (2026-03-10)
+
+### Bug Fixes
+
+- improve ingredient merging on shopping list ([2db2856](https://github.com/liskeee/meal-swiper/commit/2db2856992c257f9b8235ed55036183814870a9b))
+- scale kcal and protein by number of people from settings ([7add795](https://github.com/liskeee/meal-swiper/commit/7add7951b4f3847f07e75295d80dd6b1262d3b40))
+
 ## [1.1.2](https://github.com/liskeee/meal-swiper/compare/v1.1.1...v1.1.2) (2026-03-10)
 
 ### Bug Fixes
