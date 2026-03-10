@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { useAppContext } from '@/lib/context'
 import { DAY_KEYS } from '@/lib/utils'
 import type { Meal } from '@/types'
+import { scaleIngredient } from '@/lib/scaling'
 
 function getTodayMeal(weeklyPlan: ReturnType<typeof useAppContext>['weeklyPlan']): Meal | null {
   const today = new Date().getDay() // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
@@ -24,7 +25,7 @@ function getTodayMeal(weeklyPlan: ReturnType<typeof useAppContext>['weeklyPlan']
 }
 
 export default function CookingPage() {
-  const { weeklyPlan } = useAppContext()
+  const { weeklyPlan, settings } = useAppContext()
   const meal = useMemo(() => getTodayMeal(weeklyPlan), [weeklyPlan])
 
   const [checkedSteps, setCheckedSteps] = useState<Record<number, boolean>>({})
@@ -79,6 +80,10 @@ export default function CookingPage() {
   const steps: string[] = recipe?.kroki ?? []
   const tips: string = recipe?.wskazowki ?? ''
 
+  // Scale ingredients based on number of people
+  const scaledBase = baseIngredients.map((ing) => scaleIngredient(ing, settings.people))
+  const scaledMeat = meatIngredients.map((ing) => scaleIngredient(ing, settings.people))
+
   const toggleStep = (i: number) => setCheckedSteps((prev) => ({ ...prev, [i]: !prev[i] }))
   const toggleIngredient = (key: string) =>
     setCheckedIngredients((prev) => ({ ...prev, [key]: !prev[key] }))
@@ -115,10 +120,10 @@ export default function CookingPage() {
           <section>
             <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[20px]">grocery</span>
-              Składniki (2 osoby)
+              Składniki ({settings.people} {settings.people === 1 ? 'osoby' : 'osób'})
             </h2>
             <div className="space-y-2">
-              {baseIngredients.map((ing, i) => {
+              {scaledBase.map((ing, i) => {
                 const key = `base-${i}`
                 const checked = checkedIngredients[key] ?? false
                 return (
@@ -169,7 +174,7 @@ export default function CookingPage() {
               Dokładka mięsna (Łukasz)
             </h2>
             <div className="space-y-2">
-              {meatIngredients.map((ing, i) => {
+              {scaledMeat.map((ing, i) => {
                 const key = `meat-${i}`
                 const checked = checkedIngredients[key] ?? false
                 return (

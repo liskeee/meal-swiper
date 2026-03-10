@@ -12,6 +12,7 @@ const navItems = [
   { id: 'swipe' as ViewId, href: '/swipe', icon: 'view_carousel', label: 'Propozycje' },
   { id: 'shopping' as ViewId, href: '/shopping', icon: 'list_alt', label: 'Lista' },
   { id: 'cooking' as ViewId, href: '/cooking', icon: 'skillet', label: 'Gotowanie' },
+  { id: 'settings' as ViewId, href: '/settings', icon: 'settings', label: 'Ustawienia' },
 ]
 
 export default function Navigation({ activeView }: NavigationProps) {

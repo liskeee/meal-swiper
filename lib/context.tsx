@@ -9,9 +9,10 @@ import {
   useEffect,
   type ReactNode,
 } from 'react'
-import type { Meal, DayKey, WeeklyPlan } from '@/types'
+import type { Meal, DayKey, WeeklyPlan, AppSettings } from '@/types'
 import { useMeals } from '@/hooks/useMeals'
 import { useWeeklyPlan } from '@/hooks/useWeeklyPlan'
+import { useSettings } from '@/hooks/useSettings'
 import { DAY_KEYS } from '@/lib/utils'
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -43,6 +44,8 @@ interface AppContextValue {
   setCurrentSwipeIndex: (index: number) => void
   setShuffledMeals: (meals: Meal[]) => void
   setSeenIds: (ids: string[]) => void
+  settings: AppSettings
+  updateSettings: (settings: AppSettings) => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -51,6 +54,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const { meals, loading: mealsLoading } = useMeals()
   const { weeklyPlan, weekOffset, weekKey, setWeekOffset, setMeal, removeMeal, toggleVacation } =
     useWeeklyPlan()
+  const { settings, updateSettings } = useSettings()
 
   const allDaysFilled = useMemo(
     () => DAY_KEYS.every((day) => weeklyPlan[day] || weeklyPlan[`${day}_free`]),
@@ -137,6 +141,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setCurrentSwipeIndex,
         setShuffledMeals,
         setSeenIds,
+        settings,
+        updateSettings,
       }}
     >
       {children}

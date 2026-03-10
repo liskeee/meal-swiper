@@ -5,6 +5,7 @@ import type { Meal, DayKey, WeeklyPlan } from '@/types'
 import { useWeekDates } from '@/hooks/useWeekDates'
 import { DAY_KEYS, DAY_NAMES, formatDateShort } from '@/lib/utils'
 import MealModal from '@/components/MealModal'
+import { useAppContext } from '@/lib/context'
 
 interface CalendarViewProps {
   weeklyPlan: WeeklyPlan
@@ -21,6 +22,7 @@ export default function CalendarView({
   onRemoveMeal,
   onToggleVacation,
 }: CalendarViewProps) {
+  const { settings } = useAppContext()
   const [activeMenu, setActiveMenu] = useState<DayKey | null>(null)
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null)
   const { weekDates } = useWeekDates(weekOffset)
@@ -262,7 +264,11 @@ export default function CalendarView({
       </div>
 
       {/* Meal Detail Modal */}
-      <MealModal meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
+      <MealModal
+        meal={selectedMeal}
+        onClose={() => setSelectedMeal(null)}
+        people={settings.people}
+      />
     </div>
   )
 }

@@ -3,6 +3,19 @@ import { render, screen } from '@testing-library/react'
 import CalendarView from '@/components/CalendarView'
 import type { Meal, WeeklyPlan } from '@/types'
 
+// Mock useAppContext
+vi.mock('@/lib/context', () => ({
+  useAppContext: () => ({
+    settings: {
+      people: 2,
+      persons: [
+        { kcal: 2000, protein: 120 },
+        { kcal: 1800, protein: 100 },
+      ],
+    },
+  }),
+}))
+
 const mockMeal: Meal = {
   id: '1',
   nazwa: 'Pasta Carbonara',

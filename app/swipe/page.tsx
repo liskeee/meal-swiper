@@ -22,6 +22,12 @@ export default function SwipePage() {
     setCurrentSwipeDay,
     handleSwipeRight,
     allDaysFilled,
+    shuffledMeals,
+    currentSwipeIndex,
+    seenIds,
+    setCurrentSwipeIndex,
+    setShuffledMeals,
+    setSeenIds,
   } = useAppContext()
   const weekDates = useMemo(() => getWeekDates(weekOffset), [weekOffset])
 
@@ -95,6 +101,12 @@ export default function SwipePage() {
       weekDates={weekDates}
       onDaySelect={setCurrentSwipeDay}
       allDaysFilled={allDaysFilled}
+      shuffledMealsFromContext={shuffledMeals}
+      currentSwipeIndexFromContext={currentSwipeIndex}
+      seenIdsFromContext={seenIds}
+      setCurrentSwipeIndexInContext={setCurrentSwipeIndex}
+      setShuffledMealsInContext={setShuffledMeals}
+      setSeenIdsInContext={setSeenIds}
     />
   )
 }

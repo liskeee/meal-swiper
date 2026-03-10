@@ -3,6 +3,19 @@ import { render, screen, fireEvent, act } from '@testing-library/react'
 import SwipeView from '@/components/SwipeView'
 import type { Meal, WeeklyPlan } from '@/types'
 
+// Mock useAppContext
+vi.mock('@/lib/context', () => ({
+  useAppContext: () => ({
+    settings: {
+      people: 2,
+      persons: [
+        { kcal: 2000, protein: 120 },
+        { kcal: 1800, protein: 100 },
+      ],
+    },
+  }),
+}))
+
 // Mock framer-motion
 vi.mock('framer-motion', () => {
   const React = require('react')

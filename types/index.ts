@@ -42,10 +42,20 @@ export type WeeklyPlan = {
   [K in `${DayKey}_free`]: boolean
 }
 
-export type ViewId = 'plan' | 'swipe' | 'shopping' | 'cooking'
+export type ViewId = 'plan' | 'swipe' | 'shopping' | 'cooking' | 'settings'
 
 export interface Tab {
   id: ViewId
   label: string
   icon: string
+}
+
+export interface PersonSettings {
+  kcal: number
+  protein: number
+}
+
+export interface AppSettings {
+  people: number
+  persons: PersonSettings[]
 }

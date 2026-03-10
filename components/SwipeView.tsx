@@ -5,6 +5,7 @@ import { motion, useMotionValue, useTransform, animate, type PanInfo } from 'fra
 import type { Meal, DayKey, WeeklyPlan } from '@/types'
 import { DAY_KEYS, DAY_NAMES_MAP, formatDateShort, getWeekDates } from '@/lib/utils'
 import MealModal from '@/components/MealModal'
+import { useAppContext } from '@/lib/context'
 
 interface SwipeViewProps {
   meals: Meal[]
@@ -46,6 +47,8 @@ export default function SwipeView({
   setShuffledMealsInContext,
   setSeenIdsInContext,
 }: SwipeViewProps) {
+  const { settings } = useAppContext()
+
   // Use context values if available, otherwise local state
   const seenIds = seenIdsFromContext
   const shuffledMeals = useMemo(
@@ -514,7 +517,7 @@ export default function SwipeView({
       </div>
 
       {/* Meal Detail Modal */}
-      <MealModal meal={modalMeal} onClose={() => setModalMeal(null)} />
+      <MealModal meal={modalMeal} onClose={() => setModalMeal(null)} people={settings.people} />
     </div>
   )
 }

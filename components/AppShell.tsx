@@ -14,12 +14,14 @@ const VIEW_TITLES: Record<ViewId, string> = {
   swipe: 'Propozycje',
   shopping: 'Lista zakupów',
   cooking: 'Gotowanie',
+  settings: 'Ustawienia',
 }
 
 function pathToViewId(pathname: string): ViewId {
   if (pathname.startsWith('/swipe')) return 'swipe'
   if (pathname.startsWith('/shopping')) return 'shopping'
   if (pathname.startsWith('/cooking')) return 'cooking'
+  if (pathname.startsWith('/settings')) return 'settings'
   return 'plan'
 }
 

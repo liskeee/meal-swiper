@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import type { Meal, Ingredient, RecipeStep } from '@/types'
+import { scaleIngredient } from '@/lib/scaling'
 
 interface MealModalProps {
   meal: Meal | null
   onClose: () => void
+  people?: number
 }
 
 function parseJSON<T>(json: string, fallback: T): T {
@@ -17,7 +19,7 @@ function parseJSON<T>(json: string, fallback: T): T {
   }
 }
 
-export default function MealModal({ meal, onClose }: MealModalProps) {
+export default function MealModal({ meal, onClose, people = 2 }: MealModalProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [showMeat, setShowMeat] = useState(false)
 
@@ -57,6 +59,10 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
   const meatIngredients: Ingredient[] = parseJSON(meal.skladniki_mieso, [])
   const recipe: RecipeStep = parseJSON(meal.przepis, { kroki: [] })
   const hasMeat = meatIngredients.length > 0
+
+  // Scale ingredients based on number of people
+  const scaledBase = baseIngredients.map((ing) => scaleIngredient(ing, people))
+  const scaledMeat = meatIngredients.map((ing) => scaleIngredient(ing, people))
 
   return (
     <div
@@ -134,9 +140,12 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
                 <div>
                   <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2">
                     Składniki (baza)
+                    <span className="text-xs font-normal text-slate-400 ml-2 normal-case">
+                      dla {people} {people === 1 ? 'osoby' : 'osób'}
+                    </span>
                   </h3>
                   <ul className="space-y-1.5">
-                    {baseIngredients.map((ing, i) => (
+                    {scaledBase.map((ing, i) => (
                       <li
                         key={i}
                         className="flex items-baseline gap-2 text-sm text-slate-700 dark:text-slate-300"
@@ -169,7 +178,7 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
                   </button>
                   {showMeat && (
                     <ul className="space-y-1.5 mt-2">
-                      {meatIngredients.map((ing, i) => (
+                      {scaledMeat.map((ing, i) => (
                         <li
                           key={i}
                           className="flex items-baseline gap-2 text-sm text-slate-700 dark:text-slate-300"
