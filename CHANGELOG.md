@@ -1,3 +1,9 @@
+## [1.5.2](https://github.com/liskeee/meal-swiper/compare/v1.5.1...v1.5.2) (2026-03-10)
+
+### Bug Fixes
+
+- additional UI cleanup, image error handling, and refined scaling logic ([066a61f](https://github.com/liskeee/meal-swiper/commit/066a61f39b11943f32b44162b61f83a4e612851d))
+
 ## [1.5.1](https://github.com/liskeee/meal-swiper/compare/v1.5.0...v1.5.1) (2026-03-10)
 
 ### Bug Fixes
