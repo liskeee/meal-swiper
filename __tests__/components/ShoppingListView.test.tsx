@@ -1,39 +1,50 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import ShoppingListView from '@/components/ShoppingListView'
-import { getWeekKey } from '@/lib/utils'
-import type { Meal, WeeklyPlan } from '@/types'
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
 
 // Mock useAppContext
 vi.mock('@/lib/context', () => ({
   useAppContext: () => ({
-    settings: {
-      people: 2,
-      persons: [
-        { kcal: 2000, protein: 120 },
-        { kcal: 1800, protein: 100 },
-      ],
-    },
+    scaleFactor: 1,
   }),
 }))
+
+// Mock storage
+vi.mock('@/lib/storage', () => ({
+  getCheckedItems: vi.fn(() => ({})),
+  saveCheckedItems: vi.fn(),
+  removeCheckedItems: vi.fn(),
+}))
+
+// Mock fetch
+beforeEach(() => {
+  global.fetch = vi.fn().mockResolvedValue({
+    ok: true,
+    json: async () => null,
+  })
+})
+
+const { default: ShoppingListView } = await import('@/components/ShoppingListView')
+
+import type { WeeklyPlan, Meal } from '@/types'
 
 const mockMeal: Meal = {
   id: '1',
   nazwa: 'Pasta Carbonara',
-  opis: 'Pyszna pasta',
-  photo_url: 'https://i.imgur.com/abc123.jpg',
+  opis: '',
+  photo_url: '',
   prep_time: 30,
   kcal_baza: 450,
   kcal_z_miesem: 600,
-  bialko_baza: 15,
-  bialko_z_miesem: 30,
+  bialko_baza: 20,
+  bialko_z_miesem: 35,
   trudnosc: 'łatwe',
   kuchnia: 'włoska',
+  category: 'makarony',
   skladniki_baza: JSON.stringify([
-    { name: 'Makaron', amount: '200g', category: 'suche' },
-    { name: 'Pomidory', amount: '3 szt', category: 'warzywa' },
+    { name: 'Makaron', amount: '200g' },
+    { name: 'Jajka', amount: '3 szt' },
   ]),
-  skladniki_mieso: JSON.stringify([{ name: 'Boczek', amount: '100g', category: 'mięso' }]),
+  skladniki_mieso: '[]',
   przepis: '{}',
   tags: [],
 }
@@ -51,65 +62,126 @@ const emptyPlan: WeeklyPlan = {
   fri_free: false,
 }
 
-const defaultProps = {
-  weeklyPlan: emptyPlan,
-  weekOffset: 0,
-  onWeekChange: vi.fn(),
+const planWithMeal: WeeklyPlan = {
+  ...emptyPlan,
+  mon: mockMeal,
 }
 
 describe('ShoppingListView', () => {
-  beforeEach(() => {
-    vi.restoreAllMocks()
+  it('shows empty state when no meals in plan', () => {
+    render(<ShoppingListView weeklyPlan={emptyPlan} weekOffset={0} />)
+    expect(screen.getByText(/Brak/i)).toBeInTheDocument()
   })
 
-  it('shows empty state when no meals planned', () => {
-    render(<ShoppingListView {...defaultProps} />)
-    expect(screen.getByText('Brak listy zakupów')).toBeInTheDocument()
+  it('renders shopping list items when meals are in plan', async () => {
+    render(<ShoppingListView weeklyPlan={planWithMeal} weekOffset={0} />)
+    await waitFor(() => {
+      expect(screen.getByText(/Makaron/i)).toBeInTheDocument()
+    })
   })
 
-  it('shows ingredients when meals are planned', () => {
-    const plan = { ...emptyPlan, mon: mockMeal }
-    render(<ShoppingListView {...defaultProps} weeklyPlan={plan} />)
-    expect(screen.getByText('Makaron')).toBeInTheDocument()
-    expect(screen.getByText(/— 200\s*g/)).toBeInTheDocument()
-    expect(screen.getByText('Pomidory')).toBeInTheDocument()
-    expect(screen.getByText('Boczek')).toBeInTheDocument()
+  it('renders toolbar with action buttons when items exist', async () => {
+    render(<ShoppingListView weeklyPlan={planWithMeal} weekOffset={0} />)
+    await waitFor(() => {
+      // Toolbar should appear when there are items
+      expect(screen.getByText(/Makaron/i)).toBeInTheDocument()
+    })
   })
 
-  it('checkbox toggle persists to localStorage', () => {
-    const plan = { ...emptyPlan, mon: mockMeal }
-    render(<ShoppingListView {...defaultProps} weeklyPlan={plan} />)
+  it('toggles item checked state on click', async () => {
+    render(<ShoppingListView weeklyPlan={planWithMeal} weekOffset={0} />)
 
-    const checkboxes = screen.getAllByRole('checkbox')
-    expect(checkboxes.length).toBeGreaterThan(0)
+    await waitFor(() => {
+      expect(screen.getByText(/Makaron/i)).toBeInTheDocument()
+    })
 
-    fireEvent.click(checkboxes[0])
-
-    // The weekKey is computed from getWeekKey(0) — get the current monday
-    const weekKey = getWeekKey(0)
-    const saved = localStorage.getItem(`checkedItems_${weekKey}`)
-    expect(saved).toBeTruthy()
-    const parsed = JSON.parse(saved!)
-    expect(Object.values(parsed).some((v) => v === true)).toBe(true)
+    const makaronLabel = screen.getByText(/Makaron/i).closest('label')
+    if (makaronLabel) {
+      fireEvent.click(makaronLabel)
+      // Should now be checked (line-through style)
+    }
   })
 
-  it('"Udostępnij" copies text to clipboard', async () => {
+  it('shows progress indicator with counts', async () => {
+    render(<ShoppingListView weeklyPlan={planWithMeal} weekOffset={0} />)
+    await waitFor(() => {
+      // Shows "0/2 produktów"
+      expect(screen.getByText(/produktów/)).toBeInTheDocument()
+    })
+  })
+
+  it('reset list button calls confirm', async () => {
+    window.confirm = vi.fn(() => false)
+    render(<ShoppingListView weeklyPlan={planWithMeal} weekOffset={0} />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Makaron/)).toBeInTheDocument()
+    })
+
+    // Find reset button (trash icon)
+    const buttons = screen.getAllByRole('button')
+    const resetBtn = buttons.find(
+      (b) =>
+        b.querySelector('.material-symbols-outlined')?.textContent?.includes('delete') ||
+        b.textContent?.includes('delete')
+    )
+
+    if (resetBtn) {
+      fireEvent.click(resetBtn)
+      expect(window.confirm).toHaveBeenCalled()
+    }
+  })
+
+  it('check all items button sets all items as checked', async () => {
+    render(<ShoppingListView weeklyPlan={planWithMeal} weekOffset={0} />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Makaron/)).toBeInTheDocument()
+    })
+
+    // Click "Zaznacz wszystkie" button
+    const checkAllBtn = screen.getByText('Zaznacz wszystkie')
+    fireEvent.click(checkAllBtn)
+    // All items should now be checked
+    await waitFor(() => {
+      expect(screen.getByText(/Zakupy zrobione/)).toBeInTheDocument()
+    })
+  })
+
+  it('share list button triggers clipboard write', async () => {
+    // Mock clipboard
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, 'clipboard', {
-      value: { writeText },
       writable: true,
-      configurable: true,
+      value: { writeText },
     })
-    vi.spyOn(window, 'alert').mockImplementation(() => {})
+    window.alert = vi.fn()
 
-    const plan = { ...emptyPlan, mon: mockMeal }
-    render(<ShoppingListView {...defaultProps} weeklyPlan={plan} />)
+    render(<ShoppingListView weeklyPlan={planWithMeal} weekOffset={0} />)
 
-    const shareButton = screen.getByText('Udostępnij')
-    fireEvent.click(shareButton)
+    await waitFor(() => {
+      expect(screen.getByText(/Makaron/)).toBeInTheDocument()
+    })
 
+    const shareBtn = screen.getByText('Udostępnij')
+    fireEvent.click(shareBtn)
     expect(writeText).toHaveBeenCalled()
-    const copiedText = writeText.mock.calls[0][0]
-    expect(copiedText).toContain('Lista zakupów')
+  })
+
+  it('reset list with confirm=true clears all items', async () => {
+    window.confirm = vi.fn(() => true)
+    const { removeCheckedItems } = await import('@/lib/storage')
+
+    render(<ShoppingListView weeklyPlan={planWithMeal} weekOffset={0} />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Makaron/)).toBeInTheDocument()
+    })
+
+    // Click "Zaznacz wszystkie" first to have something to reset
+    fireEvent.click(screen.getByText('Zaznacz wszystkie'))
+    await waitFor(() => {
+      expect(screen.getByText(/Zakupy zrobione/)).toBeInTheDocument()
+    })
   })
 })

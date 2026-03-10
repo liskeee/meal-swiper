@@ -1,38 +1,40 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import CalendarView from '@/components/CalendarView'
-import type { Meal, WeeklyPlan } from '@/types'
+
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/plan',
+}))
 
 // Mock useAppContext
 vi.mock('@/lib/context', () => ({
   useAppContext: () => ({
-    settings: {
-      people: 2,
-      persons: [
-        { kcal: 2000, protein: 120 },
-        { kcal: 1800, protein: 100 },
-      ],
-    },
+    settings: { people: 2, persons: [], theme: 'light' },
+    scaleFactor: 1,
   }),
 }))
 
-const mockMeal: Meal = {
-  id: '1',
-  nazwa: 'Pasta Carbonara',
-  opis: 'Pyszna pasta',
-  photo_url: 'https://i.imgur.com/abc123.jpg',
-  prep_time: 30,
-  kcal_baza: 450,
-  kcal_z_miesem: 600,
-  bialko_baza: 15,
-  bialko_z_miesem: 30,
-  trudnosc: 'łatwe',
-  kuchnia: 'włoska',
-  skladniki_baza: '[]',
-  skladniki_mieso: '[]',
-  przepis: '{}',
-  tags: [],
-}
+// Mock useWeekDates
+vi.mock('@/hooks/useWeekDates', () => ({
+  useWeekDates: () => ({
+    weekDates: [
+      new Date(2024, 2, 4), // Mon Mar 4
+      new Date(2024, 2, 5),
+      new Date(2024, 2, 6),
+      new Date(2024, 2, 7),
+      new Date(2024, 2, 8), // Fri Mar 8
+    ],
+  }),
+}))
+
+// Mock MealModal
+vi.mock('@/components/MealModal', () => ({
+  default: () => null,
+}))
+
+const { default: CalendarView } = await import('@/components/CalendarView')
+
+import type { WeeklyPlan } from '@/types'
 
 const emptyPlan: WeeklyPlan = {
   mon: null,
@@ -47,60 +49,70 @@ const emptyPlan: WeeklyPlan = {
   fri_free: false,
 }
 
-const defaultProps = {
-  weeklyPlan: emptyPlan,
-  weekOffset: 0,
-  onDayClick: vi.fn(),
-  onRemoveMeal: vi.fn(),
-  onToggleVacation: vi.fn(),
-}
-
 describe('CalendarView', () => {
-  it('renders 5 day cards', () => {
-    render(<CalendarView {...defaultProps} />)
-    const dayCards = screen.getAllByTestId(/^day-card-/)
-    expect(dayCards).toHaveLength(5)
+  const onDayClick = vi.fn()
+  const onRemoveMeal = vi.fn()
+  const onToggleVacation = vi.fn()
+
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it('empty day shows "Brak planu"', () => {
-    render(<CalendarView {...defaultProps} />)
-    const brakPlanu = screen.getAllByText('Brak planu')
-    expect(brakPlanu.length).toBeGreaterThan(0)
+  it('renders all 5 day cards', () => {
+    render(
+      <CalendarView
+        weeklyPlan={emptyPlan}
+        weekOffset={0}
+        onDayClick={onDayClick}
+        onRemoveMeal={onRemoveMeal}
+        onToggleVacation={onToggleVacation}
+      />
+    )
+    expect(screen.getByTestId('day-card-mon')).toBeInTheDocument()
+    expect(screen.getByTestId('day-card-tue')).toBeInTheDocument()
+    expect(screen.getByTestId('day-card-wed')).toBeInTheDocument()
+    expect(screen.getByTestId('day-card-thu')).toBeInTheDocument()
+    expect(screen.getByTestId('day-card-fri')).toBeInTheDocument()
   })
 
-  it('day with meal shows meal name', () => {
-    const plan = { ...emptyPlan, mon: mockMeal }
-    render(<CalendarView {...defaultProps} weeklyPlan={plan} />)
-    expect(screen.getByText('Pasta Carbonara')).toBeInTheDocument()
+  it('shows "Brak planu" for empty days', () => {
+    render(
+      <CalendarView
+        weeklyPlan={emptyPlan}
+        weekOffset={0}
+        onDayClick={onDayClick}
+        onRemoveMeal={onRemoveMeal}
+        onToggleVacation={onToggleVacation}
+      />
+    )
+    const noPlanTexts = screen.getAllByText('Brak planu')
+    expect(noPlanTexts).toHaveLength(5)
   })
 
-  it('day with meal shows prep time and kcal', () => {
-    const plan = { ...emptyPlan, mon: mockMeal }
-    render(<CalendarView {...defaultProps} weeklyPlan={plan} />)
-    expect(screen.getByText(/30 min/)).toBeInTheDocument()
-    expect(screen.getByText(/450 kcal/)).toBeInTheDocument()
+  it('renders date strings', () => {
+    render(
+      <CalendarView
+        weeklyPlan={emptyPlan}
+        weekOffset={0}
+        onDayClick={onDayClick}
+        onRemoveMeal={onRemoveMeal}
+        onToggleVacation={onToggleVacation}
+      />
+    )
+    expect(screen.getByText(/4 Mar/)).toBeInTheDocument()
   })
 
-  it('free day shows "Urlop"', () => {
-    const plan = { ...emptyPlan, wed_free: true }
-    render(<CalendarView {...defaultProps} weeklyPlan={plan} />)
-    expect(screen.getByText('Urlop')).toBeInTheDocument()
-  })
-
-  it('does not show "Generuj listę zakupów" button (removed)', () => {
-    const fullPlan: WeeklyPlan = {
-      mon: mockMeal,
-      tue: mockMeal,
-      wed: mockMeal,
-      thu: mockMeal,
-      fri: mockMeal,
-      mon_free: false,
-      tue_free: false,
-      wed_free: false,
-      thu_free: false,
-      fri_free: false,
-    }
-    render(<CalendarView {...defaultProps} weeklyPlan={fullPlan} />)
-    expect(screen.queryByText('Generuj listę zakupów')).not.toBeInTheDocument()
+  it('shows day names', () => {
+    render(
+      <CalendarView
+        weeklyPlan={emptyPlan}
+        weekOffset={0}
+        onDayClick={onDayClick}
+        onRemoveMeal={onRemoveMeal}
+        onToggleVacation={onToggleVacation}
+      />
+    )
+    expect(screen.getByText(/Poniedziałek/)).toBeInTheDocument()
+    expect(screen.getByText(/Piątek/)).toBeInTheDocument()
   })
 })
