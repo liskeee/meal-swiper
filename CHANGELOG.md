@@ -1,3 +1,9 @@
+# [1.4.0](https://github.com/liskeee/meal-swiper/compare/v1.3.0...v1.4.0) (2026-03-10)
+
+### Features
+
+- overhaul dark mode colors with Google Stitch palette and add system theme support ([b369943](https://github.com/liskeee/meal-swiper/commit/b3699434906f1666cb40446c8f26c4d33a1a1f95))
+
 # [1.3.0](https://github.com/liskeee/meal-swiper/compare/v1.2.0...v1.3.0) (2026-03-10)
 
 ### Features
