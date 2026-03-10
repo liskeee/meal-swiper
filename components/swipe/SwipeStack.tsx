@@ -42,6 +42,7 @@ export default function SwipeStack({
         .map((meal, reverseIdx) => {
           const stackIdx = stackCards.length - 1 - reverseIdx
           const isTop = stackIdx === 0
+          const actualIndex = currentIndex + stackIdx
 
           if (isTop) {
             return (
@@ -69,7 +70,7 @@ export default function SwipeStack({
 
           return (
             <div
-              key={`stack-${currentIndex + stackIdx}`}
+              key={`stack-${actualIndex}`}
               className="absolute inset-0 rounded-2xl shadow-xl overflow-hidden pointer-events-none"
               style={{
                 transform: `scale(${scale}) translateY(${translateY}px)`,
@@ -77,6 +78,7 @@ export default function SwipeStack({
                 zIndex: 10 - stackIdx,
               }}
             >
+              {/* Full image background */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 alt={meal.nazwa}
@@ -84,9 +86,38 @@ export default function SwipeStack({
                 src={meal.photo_url}
                 draggable="false"
               />
+
+              {/* Gradient overlay at bottom */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+              {/* Content at bottom — matching SwipeCard layout */}
               <div className="absolute bottom-0 left-0 right-0 p-5 pb-6 text-white">
-                <h2 className="text-2xl font-bold leading-tight drop-shadow-lg">{meal.nazwa}</h2>
+                <div className="flex justify-between items-end">
+                  <div className="flex-1 min-w-0 mr-3">
+                    <h2 className="text-2xl font-bold leading-tight drop-shadow-lg">
+                      {meal.nazwa}
+                    </h2>
+                    <p className="text-white/80 text-sm mt-1 line-clamp-2 drop-shadow">
+                      {meal.opis}
+                    </p>
+                    <div className="flex items-center gap-4 mt-3 text-sm font-medium text-white/90">
+                      <div className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[18px]">schedule</span>
+                        <span>{meal.prep_time} min</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[18px]">
+                          local_fire_department
+                        </span>
+                        <span>{Math.round((meal.kcal_baza * people) / 2)} kcal</span>
+                        <span className="text-white/60 text-xs">dla {people} os.</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold shrink-0">
+                    {actualIndex + 1}/{totalCards}
+                  </div>
+                </div>
               </div>
             </div>
           )
