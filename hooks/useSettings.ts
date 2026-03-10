@@ -13,7 +13,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     { name: 'Osoba 1', kcal: 2000, protein: 120 },
     { name: 'Osoba 2', kcal: 1800, protein: 100 },
   ],
-  theme: 'light',
+  theme: 'system',
 }
 
 export function useSettings() {

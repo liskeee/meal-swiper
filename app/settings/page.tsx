@@ -44,32 +44,44 @@ export default function SettingsPage() {
     .slice(0, settings.people)
     .reduce((sum, p) => sum + p.protein, 0)
 
-  const toggleTheme = () => {
-    updateSettings({ ...settings, theme: settings.theme === 'dark' ? 'light' : 'dark' })
+  const setTheme = (theme: 'light' | 'dark' | 'system') => {
+    updateSettings({ ...settings, theme })
   }
 
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="container mx-auto max-w-2xl px-4 py-6 pb-32 space-y-6">
-        {/* Tryb nocny */}
+        {/* Motyw aplikacji */}
         <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-slate-400">
-                {settings.theme === 'dark' ? 'dark_mode' : 'light_mode'}
-              </span>
-              <span className="text-lg font-semibold text-slate-900 dark:text-white">
-                Tryb nocny
-              </span>
-            </div>
-            <button
-              onClick={toggleTheme}
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${settings.theme === 'dark' ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'}`}
-            >
-              <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${settings.theme === 'dark' ? 'translate-x-5' : 'translate-x-0'}`}
-              />
-            </button>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+            <span className="material-symbols-outlined text-slate-400">palette</span>
+            Motyw aplikacji
+          </h2>
+
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { id: 'light', label: 'Jasny', icon: 'light_mode' },
+              { id: 'dark', label: 'Ciemny', icon: 'dark_mode' },
+              { id: 'system', label: 'System', icon: 'settings_brightness' },
+            ].map((themeOption) => {
+              const isActive = settings.theme === themeOption.id
+              return (
+                <button
+                  key={themeOption.id}
+                  onClick={() => setTheme(themeOption.id as 'light' | 'dark' | 'system')}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                    isActive
+                      ? 'border-primary bg-primary/5 text-primary'
+                      : 'border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-200 dark:hover:border-slate-700'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-2xl">{themeOption.icon}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider">
+                    {themeOption.label}
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </section>
 

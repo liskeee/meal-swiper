@@ -81,7 +81,7 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
       {/* Modal */}
       <div className="absolute inset-0 flex items-end lg:items-center justify-center">
         <div
-          className={`relative w-full max-w-lg max-h-[90dvh] bg-white dark:bg-slate-900 rounded-t-2xl lg:rounded-2xl overflow-hidden flex flex-col transition-transform duration-300 ease-out ${isVisible ? 'translate-y-0' : 'translate-y-full lg:translate-y-8'}`}
+          className={`relative w-full max-w-lg max-h-[90dvh] bg-surface-light dark:bg-surface-dark rounded-t-2xl lg:rounded-2xl overflow-hidden flex flex-col transition-transform duration-300 ease-out ${isVisible ? 'translate-y-0' : 'translate-y-full lg:translate-y-8'}`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}
@@ -99,35 +99,37 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
               <div className="relative w-full aspect-[16/10]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={meal.photo_url} alt={meal.nazwa} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </div>
             )}
 
             <div className="p-5 space-y-5">
               {/* Title + meta */}
               <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                <h2 className="text-xl font-bold text-text-primary-light dark:text-text-primary-dark">
                   {meal.nazwa}
                 </h2>
                 {meal.opis && (
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{meal.opis}</p>
+                  <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark mt-1">
+                    {meal.opis}
+                  </p>
                 )}
                 <div className="flex items-center gap-4 mt-3 flex-wrap">
                   {meal.prep_time > 0 && (
-                    <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
+                    <div className="flex items-center gap-1 text-sm text-text-secondary-light dark:text-text-secondary-dark">
                       <span className="material-symbols-outlined text-[18px]">schedule</span>
                       <span>{meal.prep_time} min</span>
                     </div>
                   )}
                   {meal.kcal_baza > 0 && (
                     <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
+                      <div className="flex items-center gap-1 text-sm text-text-secondary-light dark:text-text-secondary-dark">
                         <span className="material-symbols-outlined text-[18px]">
                           local_fire_department
                         </span>
                         <span>{totalKcal} kcal</span>
                       </div>
-                      <div className="text-xs text-slate-400 dark:text-slate-500 ml-6">
+                      <div className="text-xs text-text-secondary-light/70 dark:text-text-secondary-dark/70 ml-6">
                         {settings.persons.slice(0, people).map((person, i) => {
                           const personKcal = Math.round(
                             meal.kcal_baza * computePersonRatio(person.kcal)
@@ -144,11 +146,11 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
                   )}
                   {meal.bialko_baza > 0 && (
                     <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
+                      <div className="flex items-center gap-1 text-sm text-text-secondary-light dark:text-text-secondary-dark">
                         <span className="material-symbols-outlined text-[18px]">bolt</span>
                         <span>{totalProtein}g białka</span>
                       </div>
-                      <div className="text-xs text-slate-400 dark:text-slate-500 ml-6">
+                      <div className="text-xs text-text-secondary-light/70 dark:text-text-secondary-dark/70 ml-6">
                         {settings.persons.slice(0, people).map((person, i) => {
                           const personProtein = Math.round(
                             meal.bialko_baza * computePersonRatio(person.kcal)
@@ -163,7 +165,7 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
                     </div>
                   )}
                   {meal.trudnosc && (
-                    <div className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                    <div className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark">
                       {meal.trudnosc}
                     </div>
                   )}
@@ -173,9 +175,9 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
               {/* Base ingredients */}
               {baseIngredients.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2">
+                  <h3 className="text-sm font-bold text-text-primary-light dark:text-text-primary-dark uppercase tracking-wide mb-2">
                     Składniki (baza)
-                    <span className="text-xs font-normal text-slate-400 ml-2 normal-case">
+                    <span className="text-xs font-normal text-text-secondary-light dark:text-text-secondary-dark ml-2 normal-case">
                       dla {people} {people === 1 ? 'osoby' : 'osób'}
                     </span>
                   </h3>
@@ -183,11 +185,11 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
                     {scaledBase.map((ing, i) => (
                       <li
                         key={i}
-                        className="flex items-baseline gap-2 text-sm text-slate-700 dark:text-slate-300"
+                        className="flex items-baseline gap-2 text-sm text-text-primary-light dark:text-text-primary-dark"
                       >
                         <span className="text-primary shrink-0">•</span>
                         <span className="flex-1">{ing.name}</span>
-                        <span className="text-slate-500 dark:text-slate-400 font-medium shrink-0">
+                        <span className="text-text-secondary-light dark:text-text-secondary-dark font-medium shrink-0">
                           {ing.amount}
                         </span>
                       </li>
@@ -201,7 +203,7 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
                 <div>
                   <button
                     onClick={() => setShowMeat(!showMeat)}
-                    className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide"
+                    className="flex items-center gap-2 text-sm font-bold text-text-primary-light dark:text-text-primary-dark uppercase tracking-wide"
                   >
                     <span
                       className="material-symbols-outlined text-[18px] transition-transform"
@@ -216,11 +218,11 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
                       {scaledMeat.map((ing, i) => (
                         <li
                           key={i}
-                          className="flex items-baseline gap-2 text-sm text-slate-700 dark:text-slate-300"
+                          className="flex items-baseline gap-2 text-sm text-text-primary-light dark:text-text-primary-dark"
                         >
                           <span className="text-orange-500 shrink-0">•</span>
                           <span className="flex-1">{ing.name}</span>
-                          <span className="text-slate-500 dark:text-slate-400 font-medium shrink-0">
+                          <span className="text-text-secondary-light dark:text-text-secondary-dark font-medium shrink-0">
                             {ing.amount}
                           </span>
                         </li>
@@ -233,12 +235,15 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
               {/* Recipe steps */}
               {structuredKroki.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2">
+                  <h3 className="text-sm font-bold text-text-primary-light dark:text-text-primary-dark uppercase tracking-wide mb-2">
                     Przepis
                   </h3>
                   <ol className="space-y-2">
                     {structuredKroki.map((segments, i) => (
-                      <li key={i} className="flex gap-3 text-sm text-slate-700 dark:text-slate-300">
+                      <li
+                        key={i}
+                        className="flex gap-3 text-sm text-text-primary-light dark:text-text-primary-dark"
+                      >
                         <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
                           {i + 1}
                         </span>

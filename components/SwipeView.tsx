@@ -248,10 +248,10 @@ export default function SwipeView({
         )}
         <div className="text-center z-10">
           <div className="text-6xl mb-4 animate-bounce">🎉</div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-text-primary-dark">
             Wszystkie propozycje przejrzane!
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">
+          <p className="text-slate-600 dark:text-text-secondary-dark mt-2">
             Nie ma więcej kart do przejrzenia
           </p>
           <button

@@ -35,13 +35,13 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
   const weekRangeShort = useMemo(() => formatWeekRangeShort(weekDates), [weekDates])
 
   return (
-    <div className="h-dvh bg-background-light dark:bg-background-dark flex text-text-primary-light dark:text-text-primary-dark">
+    <div className="h-dvh bg-background-light dark:bg-background-dark flex text-text-primary-light dark:text-text-primary-dark transition-colors duration-300">
       <div className="flex-1 lg:ml-20 w-full flex flex-col h-dvh">
         {/* Global Header */}
-        <header className="shrink-0 flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-border-light dark:border-border-dark z-10">
+        <header className="shrink-0 flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-border-light dark:border-border-dark z-10">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-2xl">restaurant</span>
-            <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
+            <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-text-primary-dark">
               {VIEW_TITLES[activeView]}
             </h1>
           </div>
@@ -49,30 +49,30 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-1">
             <button
               onClick={() => setWeekOffset(weekOffset - 1)}
-              className="p-1 sm:p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1 sm:p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
             >
-              <span className="material-symbols-outlined text-sm text-slate-600 dark:text-slate-400">
+              <span className="material-symbols-outlined text-sm text-slate-600 dark:text-text-secondary-dark">
                 chevron_left
               </span>
             </button>
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[90px] text-center">
+            <span className="text-sm font-semibold text-slate-700 dark:text-text-secondary-dark min-w-[90px] text-center">
               {weekRangeShort}
             </span>
             <button
               onClick={() => setWeekOffset(weekOffset + 1)}
-              className="p-1 sm:p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1 sm:p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors"
             >
-              <span className="material-symbols-outlined text-sm text-slate-600 dark:text-slate-400">
+              <span className="material-symbols-outlined text-sm text-slate-600 dark:text-text-secondary-dark">
                 chevron_right
               </span>
             </button>
             <Link
               href="/settings"
-              className="ml-1 p-1 sm:p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors lg:hidden"
+              className="ml-1 p-1 sm:p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors lg:hidden"
               title="Ustawienia"
             >
               <span
-                className={`material-symbols-outlined text-sm ${activeView === 'settings' ? 'text-primary' : 'text-slate-600 dark:text-slate-400'}`}
+                className={`material-symbols-outlined text-sm ${activeView === 'settings' ? 'text-primary' : 'text-slate-600 dark:text-text-secondary-dark'}`}
                 style={activeView === 'settings' ? { fontVariationSettings: "'FILL' 1" } : {}}
               >
                 settings

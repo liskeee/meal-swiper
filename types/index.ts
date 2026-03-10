@@ -59,5 +59,5 @@ export interface PersonSettings {
 export interface AppSettings {
   people: number
   persons: PersonSettings[]
-  theme: 'light' | 'dark'
+  theme: 'light' | 'dark' | 'system'
 }

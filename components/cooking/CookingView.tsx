@@ -55,7 +55,7 @@ export default function CookingView({ meal, people, scaleFactor }: CookingViewPr
         {/* Składniki baza */}
         {baseIngredients.length > 0 && (
           <section>
-            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
+            <h2 className="text-base font-bold text-slate-800 dark:text-text-primary-dark mb-3 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[20px]">grocery</span>
               Składniki ({people} {people === 1 ? 'osoby' : 'osób'})
             </h2>
@@ -68,8 +68,8 @@ export default function CookingView({ meal, people, scaleFactor }: CookingViewPr
                     key={key}
                     className={`flex items-center gap-3 py-2 px-3 rounded-lg cursor-pointer transition-colors ${
                       checked
-                        ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50'
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'
+                        ? 'opacity-50 bg-slate-50 dark:bg-surface-dark/50'
+                        : 'hover:bg-slate-50 dark:hover:bg-surface-dark/30'
                     }`}
                     onClick={() => toggleIngredient(key)}
                   >
@@ -87,11 +87,11 @@ export default function CookingView({ meal, people, scaleFactor }: CookingViewPr
                       )}
                     </div>
                     <span
-                      className={`flex-1 text-sm text-slate-800 dark:text-slate-200 ${checked ? 'line-through' : ''}`}
+                      className={`flex-1 text-sm text-slate-800 dark:text-text-primary-dark ${checked ? 'line-through' : ''}`}
                     >
                       {ing.name}
                     </span>
-                    <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">
+                    <span className="text-sm text-slate-500 dark:text-text-secondary-dark shrink-0">
                       {ing.amount}
                     </span>
                   </label>
@@ -104,7 +104,7 @@ export default function CookingView({ meal, people, scaleFactor }: CookingViewPr
         {/* Dokładka mięsna */}
         {meatIngredients.length > 0 && (
           <section>
-            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
+            <h2 className="text-base font-bold text-slate-800 dark:text-text-primary-dark mb-3 flex items-center gap-2">
               <span className="material-symbols-outlined text-orange-500 text-[20px]">
                 set_meal
               </span>
@@ -119,8 +119,8 @@ export default function CookingView({ meal, people, scaleFactor }: CookingViewPr
                     key={key}
                     className={`flex items-center gap-3 py-2 px-3 rounded-lg cursor-pointer transition-colors ${
                       checked
-                        ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50'
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'
+                        ? 'opacity-50 bg-slate-50 dark:bg-surface-dark/50'
+                        : 'hover:bg-slate-50 dark:hover:bg-surface-dark/30'
                     }`}
                     onClick={() => toggleIngredient(key)}
                   >
@@ -138,11 +138,11 @@ export default function CookingView({ meal, people, scaleFactor }: CookingViewPr
                       )}
                     </div>
                     <span
-                      className={`flex-1 text-sm text-slate-800 dark:text-slate-200 ${checked ? 'line-through' : ''}`}
+                      className={`flex-1 text-sm text-slate-800 dark:text-text-primary-dark ${checked ? 'line-through' : ''}`}
                     >
                       {ing.name}
                     </span>
-                    <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">
+                    <span className="text-sm text-slate-500 dark:text-text-secondary-dark shrink-0">
                       {ing.amount}
                     </span>
                   </label>
@@ -155,7 +155,7 @@ export default function CookingView({ meal, people, scaleFactor }: CookingViewPr
         {/* Przepis — kroki */}
         {steps.length > 0 && (
           <section>
-            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
+            <h2 className="text-base font-bold text-slate-800 dark:text-text-primary-dark mb-3 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[20px]">
                 format_list_numbered
               </span>

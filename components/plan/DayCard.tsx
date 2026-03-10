@@ -54,17 +54,19 @@ export default function DayCard({
       <div
         data-testid={`day-card-${day}`}
         onContextMenu={handleContextMenu}
-        className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-3 sm:p-4 flex items-center justify-between opacity-70 group relative"
+        className="bg-slate-100 dark:bg-surface-dark/50 rounded-xl p-3 sm:p-4 flex items-center justify-between opacity-70 group relative"
       >
         <div className="flex items-center gap-4">
           <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-slate-500">flight_takeoff</span>
           </div>
           <div className="flex flex-col min-w-0">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
+            <p className="text-sm font-medium text-slate-500 dark:text-text-secondary-dark truncate">
               {dayName}, {dateStr}
             </p>
-            <p className="text-base font-bold text-slate-600 dark:text-slate-300">Urlop</p>
+            <p className="text-base font-bold text-slate-600 dark:text-text-secondary-dark">
+              Urlop
+            </p>
           </div>
         </div>
         <div className="relative">
@@ -78,13 +80,13 @@ export default function DayCard({
             <span className="material-symbols-outlined text-slate-500">more_vert</span>
           </button>
           {activeMenu && (
-            <div className="absolute right-0 top-full mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 py-2 z-50 min-w-[180px]">
+            <div className="absolute right-0 top-full mt-1 bg-white dark:bg-surface-dark rounded-lg shadow-lg border border-slate-200 dark:border-border-dark py-2 z-50 min-w-[180px]">
               <button
                 onClick={() => {
                   setActiveMenu(false)
                   onToggleVacation(day)
                 }}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-700 dark:text-slate-300"
+                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-700 dark:text-text-secondary-dark"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
                 Anuluj urlop
@@ -101,7 +103,7 @@ export default function DayCard({
       <div
         data-testid={`day-card-${day}`}
         onContextMenu={handleContextMenu}
-        className="bg-white dark:bg-slate-900 rounded-xl p-3 sm:p-4 shadow-sm flex items-center justify-between border border-slate-100 dark:border-slate-800 group relative"
+        className="bg-white dark:bg-surface-dark rounded-xl p-3 sm:p-4 shadow-sm flex items-center justify-between border border-slate-100 dark:border-border-dark group relative"
       >
         <button
           type="button"
@@ -113,14 +115,14 @@ export default function DayCard({
             style={{ backgroundImage: `url(${meal.photo_url})` }}
           />
           <div className="flex flex-col min-w-0 flex-1">
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
+            <p className="text-sm font-medium text-slate-500 dark:text-text-secondary-dark truncate">
               {dayName}, {dateStr}
             </p>
-            <p className="text-base font-bold text-slate-900 dark:text-slate-100 truncate">
+            <p className="text-base font-bold text-slate-900 dark:text-text-primary-dark truncate">
               {meal.nazwa}
             </p>
             {meal.nazwa && meal.prep_time && (
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-text-secondary-dark mt-0.5">
                 {meal.prep_time} min &bull; {Math.round((meal.kcal_baza * people) / 2)} kcal
               </p>
             )}
@@ -129,18 +131,18 @@ export default function DayCard({
         <div className="relative">
           <button
             onClick={() => setActiveMenu(!activeMenu)}
-            className="p-2 shrink-0 opacity-100 transition-opacity hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+            className="p-2 shrink-0 opacity-100 transition-opacity hover:bg-slate-100 dark:hover:bg-surface-dark rounded-lg"
           >
             <span className="material-symbols-outlined text-slate-400">more_vert</span>
           </button>
           {activeMenu && (
-            <div className="absolute right-0 top-full mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 py-2 z-50 min-w-[180px]">
+            <div className="absolute right-0 top-full mt-1 bg-white dark:bg-surface-dark rounded-lg shadow-lg border border-slate-200 dark:border-border-dark py-2 z-50 min-w-[180px]">
               <button
                 onClick={() => {
                   setActiveMenu(false)
                   onDayClick(day)
                 }}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-700 dark:text-slate-300"
+                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-700 dark:text-text-secondary-dark"
               >
                 <span className="material-symbols-outlined text-[18px]">sync_alt</span>
                 Zmień danie
@@ -160,7 +162,7 @@ export default function DayCard({
                   setActiveMenu(false)
                   onToggleVacation(day)
                 }}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-700 dark:text-slate-300"
+                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-700 dark:text-text-secondary-dark"
               >
                 <span className="material-symbols-outlined text-[18px]">flight_takeoff</span>
                 Oznacz jako wolny
@@ -177,14 +179,14 @@ export default function DayCard({
       data-testid={`day-card-${day}`}
       onClick={() => onDayClick(day)}
       onContextMenu={handleContextMenu}
-      className="bg-white dark:bg-slate-900 rounded-xl p-3 sm:p-4 shadow-sm flex items-center justify-between border border-slate-100 dark:border-slate-800 border-dashed cursor-pointer hover:border-primary/50 transition-colors group"
+      className="bg-white dark:bg-surface-dark rounded-xl p-3 sm:p-4 shadow-sm flex items-center justify-between border border-slate-100 dark:border-border-dark border-dashed cursor-pointer hover:border-primary/50 transition-colors group"
     >
       <div className="flex items-center gap-4 flex-1 min-w-0">
-        <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
+        <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-slate-50 dark:bg-surface-dark border-2 border-dashed border-slate-200 dark:border-border-dark flex items-center justify-center shrink-0">
           <span className="material-symbols-outlined text-slate-400">restaurant_menu</span>
         </div>
         <div className="flex flex-col min-w-0">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
+          <p className="text-sm font-medium text-slate-500 dark:text-text-secondary-dark truncate">
             {dayName}, {dateStr}
           </p>
           <p className="text-base font-medium text-slate-400 dark:text-slate-500 italic">
@@ -201,19 +203,19 @@ export default function DayCard({
             e.stopPropagation()
             setActiveMenu(!activeMenu)
           }}
-          className="p-2 shrink-0 opacity-100 transition-opacity hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+          className="p-2 shrink-0 opacity-100 transition-opacity hover:bg-slate-100 dark:hover:bg-surface-dark rounded-lg"
         >
           <span className="material-symbols-outlined text-slate-400">more_vert</span>
         </button>
         {activeMenu && (
-          <div className="absolute right-0 top-full mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 py-2 z-50 min-w-[180px]">
+          <div className="absolute right-0 top-full mt-1 bg-white dark:bg-surface-dark rounded-lg shadow-lg border border-slate-200 dark:border-border-dark py-2 z-50 min-w-[180px]">
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 setActiveMenu(false)
                 onDayClick(day)
               }}
-              className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-700 dark:text-slate-300"
+              className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-700 dark:text-text-secondary-dark"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
               Dodaj danie
@@ -224,7 +226,7 @@ export default function DayCard({
                 setActiveMenu(false)
                 onToggleVacation(day)
               }}
-              className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-700 dark:text-slate-300"
+              className="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-700 dark:text-text-secondary-dark"
             >
               <span className="material-symbols-outlined text-[18px]">flight_takeoff</span>
               Oznacz jako wolny

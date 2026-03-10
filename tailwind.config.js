@@ -1,24 +1,21 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: 'class',
-  content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./app/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
-        primary: '#2D6A4F',
+        primary: '#10B981', // Szmaragdowy (Emerald 500) - bardziej soczysty
         'background-light': '#FAFAF8',
-        'background-dark': '#151d19',
+        'background-dark': '#0B120F', // Głęboki, niemal czarny zielony (Obsidian Forest)
         'surface-light': '#ffffff',
-        'surface-dark': '#1a2a23',
+        'surface-dark': '#16221E', // Ciemna powierzchnia
         'text-primary-light': '#101915',
-        'text-primary-dark': '#e9f1ee',
+        'text-primary-dark': '#ECF3F0', // Off-white z nutą mięty
         'text-secondary-light': '#588d75',
-        'text-secondary-dark': '#8ebda6',
-        'border-light': '#d3e4dc',
-        'border-dark': '#2a4237',
+        'text-secondary-dark': '#94B4A6', // Przygaszona szałwia
+        'border-light': '#E2E8F0',
+        'border-dark': '#24332D', // Ciemna krawędź
       },
       fontFamily: {
         display: ['Plus Jakarta Sans', 'sans-serif'],

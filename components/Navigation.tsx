@@ -25,7 +25,7 @@ export default function Navigation({ activeView }: NavigationProps) {
   return (
     <>
       {/* Mobile Bottom Navigation */}
-      <nav className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-4 pb-safe pt-1 sm:pt-2 flex justify-center pb-3 sm:pb-4 lg:hidden">
+      <nav className="bg-surface-light dark:bg-surface-dark border-t border-border-light dark:border-border-dark px-4 pb-safe pt-1 sm:pt-2 flex justify-center pb-3 sm:pb-4 lg:hidden">
         {mobileNavItems.map(({ id, href, icon, label }) => {
           const isActive = activeView === id
           return (
@@ -33,7 +33,9 @@ export default function Navigation({ activeView }: NavigationProps) {
               key={id}
               href={href}
               className={`flex w-1/4 flex-col items-center justify-center gap-0.5 sm:gap-1 transition-colors py-0.5 sm:py-1 relative ${
-                isActive ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'
+                isActive
+                  ? 'text-primary'
+                  : 'text-text-secondary-light dark:text-text-secondary-dark hover:text-primary'
               }`}
             >
               <span
@@ -53,7 +55,7 @@ export default function Navigation({ activeView }: NavigationProps) {
       </nav>
 
       {/* Desktop Sidebar Navigation */}
-      <nav className="hidden lg:flex fixed left-0 top-0 bottom-0 w-20 bg-white dark:bg-slate-900 flex-col items-center py-6 gap-1 z-30 px-2">
+      <nav className="hidden lg:flex fixed left-0 top-0 bottom-0 w-20 bg-surface-light dark:bg-surface-dark flex-col items-center py-6 gap-1 z-30 px-2 border-r border-border-light dark:border-border-dark">
         <div className="mb-4">
           <span className="material-symbols-outlined text-primary text-3xl">restaurant</span>
         </div>
@@ -66,7 +68,7 @@ export default function Navigation({ activeView }: NavigationProps) {
               className={`flex w-full flex-col items-center justify-center gap-1 transition-colors py-3 rounded-xl relative ${
                 isActive
                   ? 'text-primary bg-primary/10'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'
+                  : 'text-text-secondary-light dark:text-text-secondary-dark hover:text-primary hover:bg-slate-100 dark:hover:bg-surface-dark'
               }`}
             >
               <span
@@ -93,7 +95,7 @@ export default function Navigation({ activeView }: NavigationProps) {
             className={`flex w-full flex-col items-center justify-center gap-1 transition-colors py-3 rounded-xl relative ${
               activeView === 'settings'
                 ? 'text-primary bg-primary/10'
-                : 'text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'
+                : 'text-text-secondary-light dark:text-text-secondary-dark hover:text-primary hover:bg-slate-100 dark:hover:bg-surface-dark'
             }`}
           >
             <span

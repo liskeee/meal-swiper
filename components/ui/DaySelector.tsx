@@ -37,11 +37,11 @@ export default function DaySelector({
             className={`flex flex-col items-center gap-1 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl transition-all ${
               isActive
                 ? 'bg-primary/20 ring-2 ring-primary shadow-sm'
-                : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                : 'hover:bg-slate-100 dark:hover:bg-surface-dark'
             } ${isFree ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             {showThumbnails && (
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-slate-800 shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-surface-dark shrink-0">
                 {meal ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -60,7 +60,7 @@ export default function DaySelector({
             )}
             <span
               className={`text-xs font-semibold ${
-                isActive ? 'text-primary' : 'text-slate-600 dark:text-slate-400'
+                isActive ? 'text-primary' : 'text-slate-600 dark:text-text-secondary-dark'
               }`}
             >
               {shortName}

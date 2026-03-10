@@ -21,7 +21,7 @@ export default function RecipeSteps({ steps, checkedSteps = {}, onToggleStep }: 
             className={`flex gap-3 p-3 rounded-xl cursor-pointer transition-all ${
               done
                 ? 'bg-green-50 dark:bg-green-900/20 opacity-60'
-                : 'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800'
+                : 'bg-slate-50 dark:bg-surface-dark/50 hover:bg-slate-100 dark:hover:bg-surface-dark'
             }`}
           >
             <div
@@ -32,7 +32,7 @@ export default function RecipeSteps({ steps, checkedSteps = {}, onToggleStep }: 
               {done ? '✓' : i + 1}
             </div>
             <p
-              className={`text-sm text-slate-700 dark:text-slate-300 leading-relaxed flex-1 ${done ? 'line-through' : ''}`}
+              className={`text-sm text-slate-700 dark:text-text-secondary-dark leading-relaxed flex-1 ${done ? 'line-through' : ''}`}
             >
               {segments.map((seg, j) =>
                 seg.type === 'text' ? (

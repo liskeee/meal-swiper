@@ -127,10 +127,10 @@ export default function ShoppingListView({ weeklyPlan, weekOffset }: ShoppingLis
         {!hasAnyItems ? (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="text-6xl mb-4">🛒</div>
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-text-primary-dark mb-2">
               Brak listy zakupów
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-center">
+            <p className="text-slate-600 dark:text-text-secondary-dark text-center">
               Zaplanuj posiłki na tydzień, aby wygenerować listę.
             </p>
           </div>

@@ -50,10 +50,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const { settings, updateSettings, scaleFactor } = useSettings()
 
   useEffect(() => {
-    if (settings.theme === 'dark') {
-      document.documentElement.classList.add('dark')
+    const root = window.document.documentElement
+    const theme = settings.theme
+
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      const applyTheme = (isDark: boolean) => {
+        if (isDark) {
+          root.classList.add('dark')
+        } else {
+          root.classList.remove('dark')
+        }
+      }
+
+      applyTheme(mediaQuery.matches)
+
+      const listener = (e: MediaQueryListEvent) => applyTheme(e.matches)
+      mediaQuery.addEventListener('change', listener)
+      return () => mediaQuery.removeEventListener('change', listener)
     } else {
-      document.documentElement.classList.remove('dark')
+      if (theme === 'dark') {
+        root.classList.add('dark')
+      } else {
+        root.classList.remove('dark')
+      }
     }
   }, [settings.theme])
 
