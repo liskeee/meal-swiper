@@ -1,40 +1,37 @@
 export const runtime = 'edge'
 
 import type { NextRequest } from 'next/server'
+import { getWeeklyPlan, saveWeeklyPlan, type D1Database } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
-  const env = process.env as unknown as { MEAL_PLANS: KVNamespace }
+  const db = (process.env as unknown as { DB: D1Database }).DB
   const week = request.nextUrl.searchParams.get('week')
 
-  if (!week) {
-    return Response.json({ error: 'week required' }, { status: 400 })
-  }
+  if (!week) return Response.json({ error: 'week required' }, { status: 400 })
+  if (!db) return Response.json({ error: 'D1 not configured' }, { status: 500 })
 
-  if (!env.MEAL_PLANS) {
-    return Response.json({ error: 'KV namespace MEAL_PLANS not configured' }, { status: 500 })
+  try {
+    const data = await getWeeklyPlan(db, week)
+    return Response.json(data ? JSON.parse(data) : null)
+  } catch (error) {
+    console.error('Error reading plan from D1:', error)
+    return Response.json(null)
   }
-
-  const data = await env.MEAL_PLANS.get(`plan:${week}`)
-  return Response.json(data ? JSON.parse(data) : null)
 }
 
 export async function POST(request: NextRequest) {
-  const env = process.env as unknown as { MEAL_PLANS: KVNamespace }
-
-  if (!env.MEAL_PLANS) {
-    return Response.json({ error: 'KV namespace MEAL_PLANS not configured' }, { status: 500 })
-  }
+  const db = (process.env as unknown as { DB: D1Database }).DB
+  if (!db) return Response.json({ error: 'D1 not configured' }, { status: 500 })
 
   const body = await request.json()
   const { week, plan } = body as { week?: string; plan?: unknown }
+  if (!week || !plan) return Response.json({ error: 'week and plan required' }, { status: 400 })
 
-  if (!week || !plan) {
-    return Response.json({ error: 'week and plan required' }, { status: 400 })
+  try {
+    await saveWeeklyPlan(db, week, JSON.stringify(plan))
+    return Response.json({ ok: true })
+  } catch (error) {
+    console.error('Error saving plan to D1:', error)
+    return Response.json({ error: 'Failed to save' }, { status: 500 })
   }
-
-  await env.MEAL_PLANS.put(`plan:${week}`, JSON.stringify(plan), {
-    expirationTtl: 60 * 60 * 24 * 90,
-  })
-
-  return Response.json({ ok: true })
 }

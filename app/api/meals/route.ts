@@ -1,28 +1,22 @@
 export const runtime = 'edge'
 
 import { NextResponse } from 'next/server'
-import { fetchMealsFromNotion } from '@/lib/notion'
+import { fetchMealsFromD1, type D1Database } from '@/lib/db'
 
 export async function GET() {
-  const notionToken = process.env.NOTION_TOKEN
-  const mealsDbId = process.env.MEALS_DB_ID
+  const db = (process.env as unknown as { DB: D1Database }).DB
 
-  if (!notionToken || !mealsDbId) {
-    return NextResponse.json(
-      { error: 'Missing NOTION_TOKEN or MEALS_DB_ID environment variables' },
-      { status: 500 }
-    )
+  if (!db) {
+    return NextResponse.json({ error: 'D1 database not configured' }, { status: 500 })
   }
 
   try {
-    const meals = await fetchMealsFromNotion(notionToken, mealsDbId)
+    const meals = await fetchMealsFromD1(db)
     return NextResponse.json(meals, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
-      },
+      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
     })
   } catch (error) {
-    console.error('Error fetching meals:', error)
+    console.error('Error fetching meals from D1:', error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
