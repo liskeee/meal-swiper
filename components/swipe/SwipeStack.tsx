@@ -44,6 +44,9 @@ export default function SwipeStack({
           const isTop = stackIdx === 0
           const actualIndex = currentIndex + stackIdx
 
+          // Only render top card + 2 background cards for performance and to avoid bleed-through
+          if (stackIdx > 2) return null
+
           if (isTop) {
             return (
               <SwipeCard
@@ -71,7 +74,7 @@ export default function SwipeStack({
           return (
             <div
               key={`stack-${actualIndex}`}
-              className="absolute inset-0 rounded-2xl shadow-xl overflow-hidden pointer-events-none"
+              className="absolute inset-0 rounded-2xl shadow-xl overflow-hidden pointer-events-none bg-slate-200 dark:bg-surface-dark"
               style={{
                 transform: `scale(${scale}) translateY(${translateY}px)`,
                 opacity: cardOpacity,
@@ -79,13 +82,18 @@ export default function SwipeStack({
               }}
             >
               {/* Full image background */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                alt={meal.nazwa}
-                className="absolute inset-0 w-full h-full object-cover"
-                src={meal.photo_url}
-                draggable="false"
-              />
+              {meal.photo_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  alt={meal.nazwa}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  src={meal.photo_url}
+                  draggable="false"
+                  onError={(e) => {
+                    ;(e.target as HTMLImageElement).style.display = 'none'
+                  }}
+                />
+              )}
 
               {/* Gradient overlay at bottom */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />

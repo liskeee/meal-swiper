@@ -136,7 +136,7 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
                           )
                           return (
                             <span key={i}>
-                              {person.name}: {personKcal} kcal
+                              Osoba {i + 1}: {personKcal} kcal
                               {i < people - 1 ? ' | ' : ''}
                             </span>
                           )
@@ -157,7 +157,7 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
                           )
                           return (
                             <span key={i}>
-                              {person.name}: {personProtein}g{i < people - 1 ? ' | ' : ''}
+                              Osoba {i + 1}: {personProtein}g{i < people - 1 ? ' | ' : ''}
                             </span>
                           )
                         })}

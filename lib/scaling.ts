@@ -31,11 +31,32 @@ export function scaleIngredient(ing: Ingredient, scaleFactor: number): Ingredien
 
   const scaled = parsed.value * scaleFactor
 
-  // zaokrąglenie: dla g/ml do 5, dla reszty 1 miejsce po przecinku jeśli <10
+  // zaokrąglenie: dla g/ml do 5, dla reszty 1 miejsce po przecinku lub pełne
   let rounded: number
   const unit = parsed.unit.toLowerCase()
+  const isDiscrete =
+    ['ząbek', 'ząbki', 'puszka', 'puszki', 'szt', 'opakowanie', 'opakowania'].some((u) =>
+      unit.includes(u)
+    ) ||
+    unit === 'łyżka' ||
+    unit === 'łyżki' ||
+    unit === 'łyżeczka' ||
+    unit === 'łyżeczki'
+
   if (unit === 'g' || unit === 'ml') {
     rounded = Math.round(scaled / 5) * 5
+  } else if (isDiscrete) {
+    // Dla jednostek "dyskretnych" (ząbki, puszki, sztuki) zaokrąglamy do 0.5 lub całości
+    const fraction = scaled % 1
+    if (fraction < 0.2 || fraction > 0.8) {
+      rounded = Math.round(scaled)
+    } else if (fraction >= 0.2 && fraction <= 0.8) {
+      rounded = Math.floor(scaled) + 0.5
+    } else {
+      rounded = Math.round(scaled * 2) / 2
+    }
+    // Nigdy nie schodzimy poniżej 0.5 dla takich jednostek
+    rounded = Math.max(0.5, rounded)
   } else if (scaled < 10) {
     rounded = Math.round(scaled * 10) / 10
   } else {
