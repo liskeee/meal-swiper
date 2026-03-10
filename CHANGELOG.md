@@ -1,3 +1,9 @@
+## [1.1.4](https://github.com/liskeee/meal-swiper/compare/v1.1.3...v1.1.4) (2026-03-10)
+
+### Bug Fixes
+
+- merge ingredients across different units via gramsHint ([711dca2](https://github.com/liskeee/meal-swiper/commit/711dca21fd143f637cf50559c7a6a8a8b994bb19))
+
 ## [1.1.3](https://github.com/liskeee/meal-swiper/compare/v1.1.2...v1.1.3) (2026-03-10)
 
 ### Bug Fixes
