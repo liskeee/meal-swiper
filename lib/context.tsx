@@ -48,6 +48,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const { weeklyPlan, weekOffset, weekKey, setWeekOffset, setMeal, removeMeal, toggleVacation } =
     useWeeklyPlan()
   const { settings, updateSettings, scaleFactor } = useSettings()
+
+  useEffect(() => {
+    if (settings.theme === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [settings.theme])
+
   const {
     shuffledMeals,
     currentSwipeIndex,

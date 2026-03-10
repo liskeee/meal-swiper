@@ -13,6 +13,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     { name: 'Osoba 1', kcal: 2000, protein: 120 },
     { name: 'Osoba 2', kcal: 1800, protein: 100 },
   ],
+  theme: 'light',
 }
 
 export function useSettings() {
@@ -30,7 +31,7 @@ export function useSettings() {
         const stored = localStorage.getItem(STORAGE_KEY)
         if (stored) {
           const parsed = JSON.parse(stored) as AppSettings
-          if (!cancelled) setSettings(parsed)
+          if (!cancelled) setSettings((prev) => ({ ...prev, ...parsed }))
         }
       } catch {
         // ignore
@@ -42,9 +43,12 @@ export function useSettings() {
         if (res.ok) {
           const data = await res.json()
           if (data && !cancelled) {
-            setSettings(data as AppSettings)
-            // Sync to localStorage
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+            setSettings((prev) => {
+              const next = { ...prev, ...data }
+              // Sync to localStorage
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+              return next
+            })
           }
         }
       } catch {
