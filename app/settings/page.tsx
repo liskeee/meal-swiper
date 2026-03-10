@@ -11,7 +11,7 @@ export default function SettingsPage() {
 
     // Jeśli zwiększamy liczbę osób, dodaj domyślne ustawienia
     while (newPersons.length < newPeople) {
-      newPersons.push({ kcal: 2000, protein: 120 })
+      newPersons.push({ name: `Osoba ${newPersons.length + 1}`, kcal: 2000, protein: 120 })
     }
 
     updateSettings({
@@ -19,6 +19,12 @@ export default function SettingsPage() {
       people: newPeople,
       persons: newPersons,
     })
+  }
+
+  const handleNameChange = (index: number, name: string) => {
+    const newPersons = [...settings.persons]
+    newPersons[index] = { ...newPersons[index], name }
+    updateSettings({ ...settings, persons: newPersons })
   }
 
   const handlePersonChange = (index: number, field: 'kcal' | 'protein', value: number) => {
@@ -83,9 +89,17 @@ export default function SettingsPage() {
           <div className="space-y-4">
             {settings.persons.slice(0, settings.people).map((person, index) => (
               <div key={index} className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 space-y-3">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                  Osoba {index + 1}
-                </h3>
+                {/* Imię */}
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm text-slate-400">person</span>
+                  <input
+                    type="text"
+                    value={person.name || `Osoba ${index + 1}`}
+                    onChange={(e) => handleNameChange(index, e.target.value)}
+                    placeholder={`Osoba ${index + 1}`}
+                    className="flex-1 px-2 py-1 rounded-lg border-0 bg-transparent text-sm font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-slate-400"
+                  />
+                </div>
 
                 {/* Kalorie */}
                 <div className="space-y-1">

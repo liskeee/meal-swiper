@@ -8,8 +8,8 @@ const STORAGE_KEY = 'meal_swiper_settings'
 export const DEFAULT_SETTINGS: AppSettings = {
   people: 2,
   persons: [
-    { kcal: 2000, protein: 120 },
-    { kcal: 1800, protein: 100 },
+    { name: 'Osoba 1', kcal: 2000, protein: 120 },
+    { name: 'Osoba 2', kcal: 1800, protein: 100 },
   ],
 }
 

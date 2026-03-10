@@ -51,6 +51,7 @@ export interface Tab {
 }
 
 export interface PersonSettings {
+  name: string
   kcal: number
   protein: number
 }

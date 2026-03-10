@@ -62,31 +62,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [weeklyPlan]
   )
 
-  const usedMealIds = useMemo(
-    () => DAY_KEYS.map((d) => weeklyPlan[d]?.id).filter(Boolean) as string[],
-    [weeklyPlan]
-  )
-
   const [currentSwipeDay, setCurrentSwipeDay] = useState<DayKey | null>(null)
+  const [lastInitWeekOffset, setLastInitWeekOffset] = useState<number | null>(null)
 
-  // Initialize shuffledMeals when meals first load
+  // Initialize shuffledMeals when meals first load OR when week changes
+  // IMPORTANT: Do NOT depend on usedMealIds here — that changes every swipe
+  // and would cause a full reshuffle, making cards jump around
   useEffect(() => {
-    if (meals.length > 0 && shuffledMeals.length === 0) {
-      const available = meals.filter((m) => !usedMealIds.includes(m.id))
-      queueMicrotask(() => shuffleMeals(available))
-    }
-  }, [meals, shuffledMeals.length, shuffleMeals, usedMealIds])
+    if (meals.length === 0) return
 
-  // Reset swipe state on week change
-  useEffect(() => {
-    if (meals.length > 0) {
+    const isFirstInit = shuffledMeals.length === 0 && lastInitWeekOffset === null
+    const isWeekChange = lastInitWeekOffset !== null && lastInitWeekOffset !== weekOffset
+
+    if (isFirstInit || isWeekChange) {
+      // Get currently used meal IDs directly from weeklyPlan (not via usedMealIds memo)
+      const currentUsedIds = DAY_KEYS.map((d) => weeklyPlan[d]?.id).filter(Boolean) as string[]
+      const available = meals.filter((m) => !currentUsedIds.includes(m.id))
       queueMicrotask(() => {
-        const available = meals.filter((m) => !usedMealIds.includes(m.id))
         shuffleMeals(available)
-        setCurrentSwipeDay(null)
+        if (isWeekChange) setCurrentSwipeDay(null)
       })
+      setLastInitWeekOffset(weekOffset)
     }
-  }, [weekOffset, meals, shuffleMeals, usedMealIds])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meals, weekOffset, shuffledMeals.length, lastInitWeekOffset])
 
   const handleSwipeRight = useCallback(
     (meal: Meal) => {
