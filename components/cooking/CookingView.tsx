@@ -5,6 +5,7 @@ import type { Meal } from '@/types'
 import { scaleIngredient, scaleNutrition } from '@/lib/scaling'
 import { parseRecipe, enrichStepsStructured } from '@/lib/recipe'
 import RecipeSteps from '@/components/cooking/RecipeSteps'
+import CookingProgressBar from '@/components/cooking/CookingProgressBar'
 
 interface CookingViewProps {
   meal: Meal
@@ -161,6 +162,10 @@ export default function CookingView({ meal, people, scaleFactor }: CookingViewPr
               </span>
               Przepis
             </h2>
+            <CookingProgressBar
+              total={structuredSteps.length}
+              done={structuredSteps.filter((_, i) => checkedSteps[i]).length}
+            />
             <RecipeSteps
               steps={structuredSteps}
               checkedSteps={checkedSteps}
