@@ -6,15 +6,6 @@ import type { Meal, DayKey, WeeklyPlan } from '@/types'
 import { DAY_KEYS, DAY_NAMES_MAP, formatDateShort, getWeekDates } from '@/lib/utils'
 import MealModal from '@/components/MealModal'
 
-function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  return shuffled
-}
-
 interface SwipeViewProps {
   meals: Meal[]
   onSwipeRight: (meal: Meal) => void
@@ -27,6 +18,12 @@ interface SwipeViewProps {
   weekDates?: Date[]
   onDaySelect?: (day: DayKey) => void
   allDaysFilled?: boolean
+  shuffledMealsFromContext?: Meal[]
+  currentSwipeIndexFromContext?: number
+  seenIdsFromContext?: string[]
+  setCurrentSwipeIndexInContext?: (index: number) => void
+  setShuffledMealsInContext?: (meals: Meal[]) => void
+  setSeenIdsInContext?: (ids: string[]) => void
 }
 
 const SWIPE_THRESHOLD = 120
@@ -42,10 +39,20 @@ export default function SwipeView({
   weekDates: weekDatesProp,
   onDaySelect,
   allDaysFilled = false,
+  shuffledMealsFromContext = [],
+  currentSwipeIndexFromContext = 0,
+  seenIdsFromContext = [],
+  setCurrentSwipeIndexInContext,
+  setShuffledMealsInContext,
+  setSeenIdsInContext,
 }: SwipeViewProps) {
-  const [seenIds, setSeenIds] = useState<string[]>([])
-  const [shuffledMeals, setShuffledMeals] = useState<Meal[]>(() => shuffleArray(meals))
-  const [currentIndex, setCurrentIndex] = useState(0)
+  // Use context values if available, otherwise local state
+  const seenIds = seenIdsFromContext
+  const shuffledMeals = useMemo(
+    () => (shuffledMealsFromContext.length > 0 ? shuffledMealsFromContext : []),
+    [shuffledMealsFromContext]
+  )
+  const currentIndex = currentSwipeIndexFromContext
   const [reshuffleToast, setReshuffleToast] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
@@ -74,6 +81,15 @@ export default function SwipeView({
 
   const currentMeal = shuffledMeals[currentIndex]
 
+  const shuffleArray = useCallback(<T,>(array: T[]): T[] => {
+    const shuffled = [...array]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return shuffled
+  }, [])
+
   const nextCard = useCallback(() => {
     if (currentIndex >= shuffledMeals.length - 1) {
       if (allDaysFilled) {
@@ -88,14 +104,14 @@ export default function SwipeView({
         const maxSeen = Math.max(0, meals.length - 3)
         const currentMealId = shuffledMeals[currentIndex]?.id
         const updatedSeen = currentMealId ? [...seenIds, currentMealId].slice(-maxSeen) : seenIds
-        setSeenIds(updatedSeen)
+        setSeenIdsInContext?.(updatedSeen)
 
         const fresh = meals.filter((m) => !updatedSeen.includes(m.id))
         const old = meals.filter((m) => updatedSeen.includes(m.id))
         const newBatch = [...shuffleArray(fresh), ...shuffleArray(old)]
 
-        setShuffledMeals((prev) => [...prev, ...newBatch])
-        setCurrentIndex((prev) => prev + 1)
+        setShuffledMealsInContext?.([...shuffledMeals, ...newBatch])
+        setCurrentSwipeIndexInContext?.(currentIndex + 1)
         x.set(0)
 
         // Show reshuffle toast
@@ -103,18 +119,30 @@ export default function SwipeView({
         setTimeout(() => setReshuffleToast(false), 2000)
       }
     } else {
-      setCurrentIndex((prev) => prev + 1)
+      setCurrentSwipeIndexInContext?.(currentIndex + 1)
       x.set(0)
     }
     setIsAnimating(false)
-  }, [currentIndex, shuffledMeals, allDaysFilled, onComplete, x, meals, seenIds])
+  }, [
+    currentIndex,
+    shuffledMeals,
+    allDaysFilled,
+    onComplete,
+    x,
+    meals,
+    seenIds,
+    setSeenIdsInContext,
+    setShuffledMealsInContext,
+    setCurrentSwipeIndexInContext,
+    shuffleArray,
+  ])
 
   const trackSeen = useCallback(
     (mealId: string) => {
       const maxSeen = Math.max(0, meals.length - 3)
-      setSeenIds((prev) => [...prev, mealId].slice(-maxSeen))
+      setSeenIdsInContext?.([...seenIds, mealId].slice(-maxSeen))
     },
-    [meals.length]
+    [meals.length, seenIds, setSeenIdsInContext]
   )
 
   const handleSwipeRight = useCallback(() => {
@@ -195,10 +223,10 @@ export default function SwipeView({
   const handleReshuffle = useCallback(() => {
     setShowSuccess(false)
     setShowConfetti(false)
-    setCurrentIndex(0)
+    setCurrentSwipeIndexInContext?.(0)
     x.set(0)
     setIsAnimating(false)
-  }, [x])
+  }, [x, setCurrentSwipeIndexInContext])
 
   if (showSuccess) {
     return (

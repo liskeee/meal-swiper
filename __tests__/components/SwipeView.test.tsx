@@ -69,6 +69,12 @@ const defaultProps = {
   weeklyPlan: defaultPlan,
   onSkipAll: vi.fn(),
   onSkipDay: vi.fn(),
+  shuffledMealsFromContext: [mockMeal, mockMeal2],
+  currentSwipeIndexFromContext: 0,
+  seenIdsFromContext: [],
+  setCurrentSwipeIndexInContext: vi.fn(),
+  setShuffledMealsInContext: vi.fn(),
+  setSeenIdsInContext: vi.fn(),
 }
 
 describe('SwipeView', () => {
@@ -123,7 +129,7 @@ describe('SwipeView', () => {
   })
 
   it('renders "Brak więcej posiłków" when no meals', () => {
-    render(<SwipeView {...defaultProps} meals={[]} />)
+    render(<SwipeView {...defaultProps} meals={[]} shuffledMealsFromContext={[]} />)
     expect(screen.getByText('Brak więcej posiłków')).toBeInTheDocument()
   })
 

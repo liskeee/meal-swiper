@@ -1,10 +1,27 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  type ReactNode,
+} from 'react'
 import type { Meal, DayKey, WeeklyPlan } from '@/types'
 import { useMeals } from '@/hooks/useMeals'
 import { useWeeklyPlan } from '@/hooks/useWeeklyPlan'
 import { DAY_KEYS } from '@/lib/utils'
+
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
 
 interface AppContextValue {
   meals: Meal[]
@@ -20,6 +37,12 @@ interface AppContextValue {
   currentSwipeDay: DayKey | null
   setCurrentSwipeDay: (day: DayKey | null) => void
   handleSwipeRight: (meal: Meal) => void
+  shuffledMeals: Meal[]
+  currentSwipeIndex: number
+  seenIds: string[]
+  setCurrentSwipeIndex: (index: number) => void
+  setShuffledMeals: (meals: Meal[]) => void
+  setSeenIds: (ids: string[]) => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -35,6 +58,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
   )
 
   const [currentSwipeDay, setCurrentSwipeDay] = useState<DayKey | null>(null)
+  const [shuffledMeals, setShuffledMeals] = useState<Meal[]>([])
+  const [currentSwipeIndex, setCurrentSwipeIndex] = useState(0)
+  const [seenIds, setSeenIds] = useState<string[]>([])
+
+  // Inicjalizuj shuffledMeals gdy meals się załadują (tylko raz)
+  useEffect(() => {
+    if (meals.length > 0 && shuffledMeals.length === 0) {
+      queueMicrotask(() => {
+        setShuffledMeals(shuffleArray(meals))
+        setCurrentSwipeIndex(0)
+        setSeenIds([])
+      })
+    }
+  }, [meals, shuffledMeals.length])
+
+  // Resetuj stan swipe przy zmianie tygodnia
+  useEffect(() => {
+    if (meals.length > 0) {
+      queueMicrotask(() => {
+        setShuffledMeals(shuffleArray(meals))
+        setCurrentSwipeIndex(0)
+        setSeenIds([])
+        setCurrentSwipeDay(null)
+      })
+    }
+  }, [weekOffset, meals])
 
   const handleSwipeRight = useCallback(
     (meal: Meal) => {
@@ -82,6 +131,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         currentSwipeDay,
         setCurrentSwipeDay,
         handleSwipeRight,
+        shuffledMeals,
+        currentSwipeIndex,
+        seenIds,
+        setCurrentSwipeIndex,
+        setShuffledMeals,
+        setSeenIds,
       }}
     >
       {children}
