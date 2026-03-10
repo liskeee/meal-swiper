@@ -1,4 +1,4 @@
-// Image generation via nano-banana-pro + upload to Imgur (anonymous)
+// Image generation via nano-banana-pro + upload to Cloudflare R2
 
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
@@ -14,66 +14,67 @@ const NANO_BANANA = path.join(
 
 const IMAGES_DIR = path.join(import.meta.dirname, '..', 'generated-images')
 
-// Imgur anonymous upload client ID (public, for anonymous uploads)
-const IMGUR_CLIENT_ID = '546c25a59c58ad7'
+// Cloudflare R2 config
+const R2_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || '67ffcd3e6a0a421156f625214d812dbd'
+const R2_BUCKET = 'meal-swiper-images'
+const R2_PUBLIC_URL = 'https://pub-63e342fa526e4c4aa923e395e32cf668.r2.dev'
 
 function slugify(str) {
-  return str.toLowerCase().normalize('NFD')
+  return str
+    .toLowerCase()
+    .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
     .slice(0, 60)
 }
 
-async function uploadToImgur(filePath) {
+async function uploadToR2(filePath, objectKey) {
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN
+  if (!apiToken) throw new Error('Missing CLOUDFLARE_API_TOKEN for R2 upload')
+
   const imageBuffer = fs.readFileSync(filePath)
-  const base64Image = imageBuffer.toString('base64')
 
-  const formData = new URLSearchParams()
-  formData.append('image', base64Image)
-  formData.append('type', 'base64')
+  const url = `https://api.cloudflare.com/client/v4/accounts/${R2_ACCOUNT_ID}/r2/buckets/${R2_BUCKET}/objects/${encodeURIComponent(objectKey)}`
 
-  const response = await fetch('https://api.imgur.com/3/image', {
-    method: 'POST',
+  const response = await fetch(url, {
+    method: 'PUT',
     headers: {
-      'Authorization': `Client-ID ${IMGUR_CLIENT_ID}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Bearer ${apiToken}`,
+      'Content-Type': 'image/png',
     },
-    body: formData.toString(),
+    body: imageBuffer,
   })
 
   if (!response.ok) {
     const err = await response.text()
-    throw new Error(`Imgur upload failed (${response.status}): ${err.slice(0, 200)}`)
+    throw new Error(`R2 upload failed (${response.status}): ${err.slice(0, 200)}`)
   }
 
-  const data = await response.json()
-  if (!data.success || !data.data?.link) {
-    throw new Error(`Imgur: brak URL w odpowiedzi`)
-  }
-
-  return data.data.link
+  return `${R2_PUBLIC_URL}/${objectKey}`
 }
 
 export async function generateImage(meal, geminiApiKey) {
   fs.mkdirSync(IMAGES_DIR, { recursive: true })
 
   const slug = slugify(meal.nazwa)
-  const filename = `${new Date().toISOString().slice(0, 10)}-${slug}.png`
+  const filename = `${slug}.png`
   const outputPath = path.join(IMAGES_DIR, filename)
 
   const prompt = `${meal.prompt_zdjecia || meal.nazwa}, food photography, appetizing, high quality, natural light`
 
   console.log(`📸 Generuję: ${meal.nazwa.slice(0, 50)}...`)
 
-  // 1. Generuj zdjęcie lokalnie
+  // 1. Generate image locally
   try {
     await execFileAsync('python3', [NANO_BANANA, '--prompt', prompt, '--filename', outputPath], {
       env: { ...process.env, GEMINI_API_KEY: geminiApiKey },
       timeout: 90000,
     })
   } catch (err) {
-    console.warn(`   ⚠️  Błąd generowania: ${(err.stderr || err.message || '').toString().slice(0, 100)}`)
+    console.warn(
+      `   ⚠️  Błąd generowania: ${(err.stderr || err.message || '').toString().slice(0, 100)}`
+    )
     return null
   }
 
@@ -85,13 +86,14 @@ export async function generateImage(meal, geminiApiKey) {
   const sizeKB = Math.round(fs.statSync(outputPath).size / 1024)
   console.log(`   ✅ Zdjęcie wygenerowane (${sizeKB}KB)`)
 
-  // 2. Upload do Imgur
+  // 2. Upload to R2
+  const objectKey = `meals/${slug}.png`
   try {
-    const url = await uploadToImgur(outputPath)
-    console.log(`   ✅ Imgur: ${url}`)
+    const url = await uploadToR2(outputPath, objectKey)
+    console.log(`   ✅ R2: ${url}`)
     return url
   } catch (err) {
-    console.warn(`   ⚠️  Imgur upload failed: ${err.message}`)
+    console.warn(`   ⚠️  R2 upload failed: ${err.message}`)
     return null
   }
 }

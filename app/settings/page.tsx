@@ -171,6 +171,21 @@ export default function SettingsPage() {
             Ustawienia są automatycznie zapisywane i będą używane do planowania posiłków.
           </p>
         </div>
+
+        {/* Wersja aplikacji */}
+        <div className="text-center pt-4 pb-2">
+          <p className="text-xs text-slate-400 dark:text-slate-600">
+            Meal Swiper v{process.env.NEXT_PUBLIC_APP_VERSION || '0.0.0'}
+          </p>
+          <a
+            href="https://github.com/liskeee/meal-swiper/blob/master/CHANGELOG.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-primary/60 hover:text-primary transition-colors"
+          >
+            Changelog
+          </a>
+        </div>
       </div>
     </div>
   )
