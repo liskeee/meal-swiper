@@ -8,7 +8,7 @@
     "start": "next start",
     "cf:build": "npx @cloudflare/next-on-pages",
     "cf:dev": "wrangler pages dev .vercel/output/static",
-    "deploy": "npm run cf:build && wrangler pages deploy .vercel/output/static",
+    "deploy": "npm run pages:build && wrangler pages deploy .vercel/output/static",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
@@ -16,7 +16,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:all": "vitest run --coverage && playwright test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "pages:build": "npx @cloudflare/next-on-pages"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
