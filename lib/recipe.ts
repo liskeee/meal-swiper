@@ -1,5 +1,36 @@
 import type { Meal, Ingredient } from '@/types'
 
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+export function enrichStepsWithAmounts(steps: string[], ingredients: Ingredient[]): string[] {
+  return steps.map((step) => {
+    let enrichedStep = step
+    for (const ing of ingredients) {
+      if (!ing.amount) continue
+      const ingName = ing.name.split('(')[0].trim()
+      const shortName = ingName.toLowerCase()
+      const stepLower = enrichedStep.toLowerCase()
+
+      if (stepLower.includes(shortName)) {
+        const nameIdx = stepLower.indexOf(shortName)
+        const afterName = enrichedStep.substring(
+          nameIdx + shortName.length,
+          nameIdx + shortName.length + 15
+        )
+        const hasAmountAlready = /\d+\s*(g|kg|ml|l|szt|łyżk)/i.test(afterName)
+
+        if (!hasAmountAlready) {
+          const regex = new RegExp(`(${escapeRegex(ingName)})`, 'i')
+          enrichedStep = enrichedStep.replace(regex, `$1 (${ing.amount})`)
+        }
+      }
+    }
+    return enrichedStep
+  })
+}
+
 export interface ParsedRecipe {
   steps: string[]
   tips: string

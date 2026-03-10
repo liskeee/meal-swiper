@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Meal, Ingredient, RecipeStep } from '@/types'
 import { scaleIngredient } from '@/lib/scaling'
+import { enrichStepsWithAmounts } from '@/lib/recipe'
 import { useAppContext } from '@/lib/context'
 
 interface MealModalProps {
@@ -63,6 +64,7 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
 
   const scaledBase = baseIngredients.map((ing) => scaleIngredient(ing, people))
   const scaledMeat = meatIngredients.map((ing) => scaleIngredient(ing, people))
+  const enrichedKroki = enrichStepsWithAmounts(recipe.kroki ?? [], [...scaledBase, ...scaledMeat])
 
   return (
     <div
@@ -196,13 +198,13 @@ export default function MealModal({ meal, onClose }: MealModalProps) {
               )}
 
               {/* Recipe steps */}
-              {recipe.kroki && recipe.kroki.length > 0 && (
+              {enrichedKroki.length > 0 && (
                 <div>
                   <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2">
                     Przepis
                   </h3>
                   <ol className="space-y-2">
-                    {recipe.kroki.map((step, i) => (
+                    {enrichedKroki.map((step, i) => (
                       <li key={i} className="flex gap-3 text-sm text-slate-700 dark:text-slate-300">
                         <span className="shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
                           {i + 1}

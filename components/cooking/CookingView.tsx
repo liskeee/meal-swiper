@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import type { Meal } from '@/types'
 import { scaleIngredient } from '@/lib/scaling'
-import { parseRecipe } from '@/lib/recipe'
+import { parseRecipe, enrichStepsWithAmounts } from '@/lib/recipe'
 
 interface CookingViewProps {
   meal: Meal
@@ -17,6 +17,7 @@ export default function CookingView({ meal, people }: CookingViewProps) {
   const { steps, tips, baseIngredients, meatIngredients } = parseRecipe(meal)
   const scaledBase = baseIngredients.map((ing) => scaleIngredient(ing, people))
   const scaledMeat = meatIngredients.map((ing) => scaleIngredient(ing, people))
+  const enrichedSteps = enrichStepsWithAmounts(steps, [...scaledBase, ...scaledMeat])
 
   const toggleStep = (i: number) => setCheckedSteps((prev) => ({ ...prev, [i]: !prev[i] }))
   const toggleIngredient = (key: string) =>
@@ -159,7 +160,7 @@ export default function CookingView({ meal, people }: CookingViewProps) {
               Przepis
             </h2>
             <div className="space-y-3">
-              {steps.map((step, i) => {
+              {enrichedSteps.map((step, i) => {
                 const done = checkedSteps[i] ?? false
                 return (
                   <div
