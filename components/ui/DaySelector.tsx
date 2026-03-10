@@ -43,12 +43,23 @@ export default function DaySelector({
             {showThumbnails && (
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-surface-dark shrink-0">
                 {meal ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={meal.photo_url}
-                    alt={meal.nazwa}
-                    className="w-full h-full object-cover"
-                  />
+                  <div className="absolute inset-0 bg-slate-200 dark:bg-surface-dark flex items-center justify-center">
+                    {meal.photo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={meal.photo_url}
+                        alt={meal.nazwa}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          ;(e.target as HTMLImageElement).style.display = 'none'
+                        }}
+                      />
+                    ) : (
+                      <span className="material-symbols-outlined text-slate-400 text-sm">
+                        restaurant
+                      </span>
+                    )}
+                  </div>
                 ) : isFree ? (
                   <span className="text-lg">✈️</span>
                 ) : (

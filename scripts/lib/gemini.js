@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const MEAL_SCHEMA = `{
   "nazwa": "string - krótka, apetyczna nazwa dania po polsku",
-  "opis": "string - opis 2-3 zdania: czym jest, co wyróżnia, dlaczego warto",
+  "opis": "string - opis 2-3 zdania: co to za danie wege i jak opcjonalny dodatek mięsny (np. kurczak, indyk) je uzupełnia",
   "kuchnia": "string - region: polska|włoska|azjatycka|meksykańska|indyjska|śródziemnomorska|koreańska",
   "kategoria": "string - typ dania: makarony|ryż i kasze|jednogarnkowe|tortille i wrapi|zapiekanki|sałatki i bowle|ziemniaki|placki i naleśniki",
   "trudnosc": "string - łatwe|średnie|trudne",
@@ -48,6 +48,7 @@ function buildPrompt({ count, cuisine, maxTime, existingMeals }) {
 2. Opcja mięsna (porcja x1, dodatkowe ~350 kcal, ~45g białka) — jako ADD-ON (kurczak|wołowina|indyk|wieprzowina)
 
 ## WYMAGANIA
+- Opis dania musi krótko wspomnieć, jak dodatek mięsny wzbogaca posiłek.
 - Autentyczne dania z prawdziwymi nazwami
 - Max czas: ${maxTime} min
 - ZERO ryb, ZERO owoców morza, ZERO jabłek

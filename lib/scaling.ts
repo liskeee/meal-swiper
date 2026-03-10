@@ -47,16 +47,11 @@ export function scaleIngredient(ing: Ingredient, scaleFactor: number): Ingredien
     rounded = Math.round(scaled / 5) * 5
   } else if (isDiscrete) {
     // Dla jednostek "dyskretnych" (ząbki, puszki, sztuki) zaokrąglamy do 0.5 lub całości
-    const fraction = scaled % 1
-    if (fraction < 0.2 || fraction > 0.8) {
-      rounded = Math.round(scaled)
-    } else if (fraction >= 0.2 && fraction <= 0.8) {
-      rounded = Math.floor(scaled) + 0.5
+    if (scaled < 1) {
+      rounded = Math.max(0.5, Math.round(scaled))
     } else {
       rounded = Math.round(scaled * 2) / 2
     }
-    // Nigdy nie schodzimy poniżej 0.5 dla takich jednostek
-    rounded = Math.max(0.5, rounded)
   } else if (scaled < 10) {
     rounded = Math.round(scaled * 10) / 10
   } else {
