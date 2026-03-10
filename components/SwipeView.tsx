@@ -108,19 +108,19 @@ export default function SwipeView({
         setSeenIdsInContext?.(updatedSeen)
         const fresh = meals.filter((m) => !updatedSeen.includes(m.id))
         const old = meals.filter((m) => updatedSeen.includes(m.id))
+        x.set(0)
         setShuffledMealsInContext?.([
           ...shuffledMeals,
           ...shuffleArray(fresh),
           ...shuffleArray(old),
         ])
         setCurrentSwipeIndexInContext?.(currentIndex + 1)
-        x.set(0)
         setReshuffleToast(true)
         setTimeout(() => setReshuffleToast(false), 2000)
       }
     } else {
-      setCurrentSwipeIndexInContext?.(currentIndex + 1)
       x.set(0)
+      setCurrentSwipeIndexInContext?.(currentIndex + 1)
     }
     setIsAnimating(false)
   }, [
