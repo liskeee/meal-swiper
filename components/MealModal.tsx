@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Meal, Ingredient, RecipeStep } from '@/types'
 import { scaleIngredient } from '@/lib/scaling'
+import { useAppContext } from '@/lib/context'
 
 interface MealModalProps {
   meal: Meal | null
   onClose: () => void
-  people?: number
 }
 
 function parseJSON<T>(json: string, fallback: T): T {
@@ -19,7 +19,9 @@ function parseJSON<T>(json: string, fallback: T): T {
   }
 }
 
-export default function MealModal({ meal, onClose, people = 2 }: MealModalProps) {
+export default function MealModal({ meal, onClose }: MealModalProps) {
+  const { settings } = useAppContext()
+  const people = settings.people
   const [isVisible, setIsVisible] = useState(false)
   const [showMeat, setShowMeat] = useState(false)
 
@@ -32,7 +34,6 @@ export default function MealModal({ meal, onClose, people = 2 }: MealModalProps)
         document.body.style.overflow = ''
       }
     } else {
-      // Use setTimeout to avoid setState-in-effect lint warning
       const t = setTimeout(() => setIsVisible(false), 0)
       document.body.style.overflow = ''
       return () => clearTimeout(t)
@@ -60,7 +61,6 @@ export default function MealModal({ meal, onClose, people = 2 }: MealModalProps)
   const recipe: RecipeStep = parseJSON(meal.przepis, { kroki: [] })
   const hasMeat = meatIngredients.length > 0
 
-  // Scale ingredients based on number of people
   const scaledBase = baseIngredients.map((ing) => scaleIngredient(ing, people))
   const scaledMeat = meatIngredients.map((ing) => scaleIngredient(ing, people))
 

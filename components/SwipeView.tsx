@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { motion, useMotionValue, useTransform, animate, type PanInfo } from 'framer-motion'
+import { useMotionValue, useTransform, animate, type PanInfo } from 'framer-motion'
 import type { Meal, DayKey, WeeklyPlan } from '@/types'
 import { DAY_NAMES_MAP, getWeekDates } from '@/lib/utils'
 import MealModal from '@/components/MealModal'
 import DaySelector from '@/components/ui/DaySelector'
+import SwipeStack from '@/components/swipe/SwipeStack'
+import SwipeActions from '@/components/swipe/SwipeActions'
 import { useAppContext } from '@/lib/context'
 
 interface SwipeViewProps {
@@ -50,13 +52,13 @@ export default function SwipeView({
 }: SwipeViewProps) {
   const { settings } = useAppContext()
 
-  // Use context values if available, otherwise local state
   const seenIds = seenIdsFromContext
   const shuffledMeals = useMemo(
     () => (shuffledMealsFromContext.length > 0 ? shuffledMealsFromContext : []),
     [shuffledMealsFromContext]
   )
   const currentIndex = currentSwipeIndexFromContext
+
   const [reshuffleToast, setReshuffleToast] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
@@ -82,7 +84,6 @@ export default function SwipeView({
 
   const weekDatesComputed = useMemo(() => getWeekDates(weekOffset), [weekOffset])
   const weekDates = weekDatesProp ?? weekDatesComputed
-
   const currentMeal = shuffledMeals[currentIndex]
 
   const shuffleArray = useCallback(<T,>(array: T[]): T[] => {
@@ -97,28 +98,23 @@ export default function SwipeView({
   const nextCard = useCallback(() => {
     if (currentIndex >= shuffledMeals.length - 1) {
       if (allDaysFilled) {
-        // All days filled — show success screen
         setShowConfetti(true)
         setShowSuccess(true)
-        setTimeout(() => {
-          onComplete?.()
-        }, 2000)
+        setTimeout(() => onComplete?.(), 2000)
       } else {
-        // Generate new round with penalty for recently seen meals
         const maxSeen = Math.max(0, meals.length - 3)
         const currentMealId = shuffledMeals[currentIndex]?.id
         const updatedSeen = currentMealId ? [...seenIds, currentMealId].slice(-maxSeen) : seenIds
         setSeenIdsInContext?.(updatedSeen)
-
         const fresh = meals.filter((m) => !updatedSeen.includes(m.id))
         const old = meals.filter((m) => updatedSeen.includes(m.id))
-        const newBatch = [...shuffleArray(fresh), ...shuffleArray(old)]
-
-        setShuffledMealsInContext?.([...shuffledMeals, ...newBatch])
+        setShuffledMealsInContext?.([
+          ...shuffledMeals,
+          ...shuffleArray(fresh),
+          ...shuffleArray(old),
+        ])
         setCurrentSwipeIndexInContext?.(currentIndex + 1)
         x.set(0)
-
-        // Show reshuffle toast
         setReshuffleToast(true)
         setTimeout(() => setReshuffleToast(false), 2000)
       }
@@ -157,7 +153,6 @@ export default function SwipeView({
     setToastText(`Dodano: ${currentMeal.nazwa} do: ${day}`)
     setShowToast(true)
     setTimeout(() => setShowToast(false), 2000)
-
     animate(x, 600, { duration: 0.3 }).then(() => {
       onSwipeRight(currentMeal)
       nextCard()
@@ -168,9 +163,7 @@ export default function SwipeView({
     if (isAnimating || !currentMeal) return
     setIsAnimating(true)
     trackSeen(currentMeal.id)
-    animate(x, -600, { duration: 0.3 }).then(() => {
-      nextCard()
-    })
+    animate(x, -600, { duration: 0.3 }).then(() => nextCard())
   }, [isAnimating, x, nextCard, currentMeal, trackSeen])
 
   const handleDragEnd = useCallback(
@@ -178,11 +171,8 @@ export default function SwipeView({
       if (isAnimating) return
       const offset = info.offset.x
       if (Math.abs(offset) > SWIPE_THRESHOLD) {
-        if (offset > 0) {
-          handleSwipeRight()
-        } else {
-          handleSwipeLeft()
-        }
+        if (offset > 0) handleSwipeRight()
+        else handleSwipeLeft()
       } else {
         animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 })
       }
@@ -190,16 +180,13 @@ export default function SwipeView({
     [isAnimating, handleSwipeRight, handleSwipeLeft, x]
   )
 
-  // Tap on card = open recipe modal (only if not dragging)
   const [dragStartX, setDragStartX] = useState(0)
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     setDragStartX(e.clientX)
   }, [])
   const handleCardTap = useCallback(
     (e: React.PointerEvent) => {
-      // Only open modal if pointer barely moved (tap, not drag)
-      const movedX = Math.abs(e.clientX - dragStartX)
-      if (movedX < 10 && currentMeal) {
+      if (Math.abs(e.clientX - dragStartX) < 10 && currentMeal) {
         setModalMeal(currentMeal)
       }
     },
@@ -207,16 +194,13 @@ export default function SwipeView({
   )
 
   const handleSkipDay = useCallback(() => {
-    if (onSkipDay) {
-      onSkipDay()
-    } else {
-      onComplete()
-    }
+    if (onSkipDay) onSkipDay()
+    else onComplete()
   }, [onSkipDay, onComplete])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (modalMeal) return // don't handle swipe keys when modal is open
+      if (modalMeal) return
       if (e.key === 'ArrowLeft') handleSwipeLeft()
       if (e.key === 'ArrowRight') handleSwipeRight()
     }
@@ -283,7 +267,6 @@ export default function SwipeView({
     )
   }
 
-  // Cards to show in stack (current + up to 2 behind)
   const stackCards = shuffledMeals.slice(currentIndex, currentIndex + 3)
 
   return (
@@ -315,168 +298,31 @@ export default function SwipeView({
 
       {/* Card Stack Area */}
       <div className="flex-1 flex flex-col items-center px-4 pb-2 relative min-h-0">
-        <div
-          className="relative w-full max-w-sm flex-1 min-h-0"
-          style={{ minHeight: '420px', maxHeight: 'calc(100vh - 320px)' }}
-        >
-          {/* Stack cards (rendered bottom-to-top) */}
-          {stackCards
-            .slice()
-            .reverse()
-            .map((meal, reverseIdx) => {
-              const stackIdx = stackCards.length - 1 - reverseIdx
-              const isTop = stackIdx === 0
+        <SwipeStack
+          stackCards={stackCards}
+          currentIndex={currentIndex}
+          totalCards={shuffledMeals.length}
+          x={x}
+          rotate={rotate}
+          likeOpacity={likeOpacity}
+          nopeOpacity={nopeOpacity}
+          onDragEnd={handleDragEnd}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handleCardTap}
+          people={settings.people}
+        />
 
-              if (isTop) {
-                return (
-                  <motion.div
-                    key={`card-${currentIndex}`}
-                    className="absolute inset-0 rounded-2xl shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing select-none touch-none"
-                    style={{
-                      x,
-                      rotate,
-                      zIndex: 10,
-                    }}
-                    drag="x"
-                    dragElastic={0.7}
-                    dragConstraints={{ left: 0, right: 0 }}
-                    onDragEnd={handleDragEnd}
-                    onPointerDown={handlePointerDown}
-                    onPointerUp={handleCardTap}
-                  >
-                    {/* Full image background */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      alt={meal.nazwa}
-                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                      src={meal.photo_url}
-                      draggable="false"
-                    />
-
-                    {/* Swipe overlays */}
-                    <motion.div
-                      className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
-                      style={{ opacity: likeOpacity }}
-                    >
-                      <div className="border-[6px] border-green-400 text-green-400 px-6 py-2 rounded-xl font-black text-4xl uppercase rotate-[-20deg] bg-black/20 backdrop-blur-sm">
-                        DODAJ DO PLANU
-                      </div>
-                    </motion.div>
-                    <motion.div
-                      className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
-                      style={{ opacity: nopeOpacity }}
-                    >
-                      <div className="border-[6px] border-red-400 text-red-400 px-6 py-2 rounded-xl font-black text-4xl uppercase rotate-[20deg] bg-black/20 backdrop-blur-sm">
-                        POMIJAM
-                      </div>
-                    </motion.div>
-
-                    {/* Gradient overlay at bottom */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-
-                    {/* Content at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-5 pb-6 text-white pointer-events-none">
-                      <div className="flex justify-between items-end">
-                        <div className="flex-1 min-w-0 mr-3">
-                          <h2 className="text-2xl font-bold leading-tight drop-shadow-lg">
-                            {meal.nazwa}
-                          </h2>
-                          <p className="text-white/80 text-sm mt-1 line-clamp-2 drop-shadow">
-                            {meal.opis}
-                          </p>
-                          <div className="flex items-center gap-4 mt-3 text-sm font-medium text-white/90">
-                            <div className="flex items-center gap-1">
-                              <span className="material-symbols-outlined text-[18px]">
-                                schedule
-                              </span>
-                              <span>{meal.prep_time} min</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="material-symbols-outlined text-[18px]">
-                                local_fire_department
-                              </span>
-                              <span>{Math.round((meal.kcal_baza * settings.people) / 2)} kcal</span>
-                              <span className="text-white/60 text-xs">
-                                dla {settings.people} os.
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold shrink-0">
-                          {currentIndex + 1}/{shuffledMeals.length}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )
-              }
-
-              // Background stack cards
-              const scale = 1 - stackIdx * 0.05
-              const translateY = stackIdx * 8
-              const cardOpacity = stackIdx === 1 ? 0.7 : 0.4
-
-              return (
-                <div
-                  key={`stack-${currentIndex + stackIdx}`}
-                  className="absolute inset-0 rounded-2xl shadow-xl overflow-hidden pointer-events-none"
-                  style={{
-                    transform: `scale(${scale}) translateY(${translateY}px)`,
-                    opacity: cardOpacity,
-                    zIndex: 10 - stackIdx,
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    alt={meal.nazwa}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    src={meal.photo_url}
-                    draggable="false"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-5 pb-6 text-white">
-                    <h2 className="text-2xl font-bold leading-tight drop-shadow-lg">
-                      {meal.nazwa}
-                    </h2>
-                  </div>
-                </div>
-              )
-            })}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col items-center gap-2 shrink-0 pb-2">
-          <div className="flex items-center justify-center gap-6 sm:gap-8 h-16 sm:h-20">
-            <button
-              onClick={handleSwipeLeft}
-              disabled={isAnimating}
-              title="Pomiń tę propozycję"
-              className="w-14 h-14 sm:w-16 sm:h-16 bg-white dark:bg-slate-800 rounded-full shadow-lg flex items-center justify-center text-red-500 border-2 border-red-100 dark:border-red-900/30 transition-transform active:scale-90 hover:scale-105 disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-3xl font-bold">close</span>
-            </button>
-            <button
-              onClick={handleSwipeRight}
-              disabled={isAnimating}
-              title="Dodaj do planu"
-              className="w-14 h-14 sm:w-16 sm:h-16 bg-primary rounded-full shadow-lg shadow-primary/30 flex items-center justify-center text-white transition-transform active:scale-90 hover:scale-105 disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-3xl font-bold">favorite</span>
-            </button>
-          </div>
-          {currentDay && (
-            <button
-              onClick={handleSkipDay}
-              className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors py-1"
-            >
-              Pomiń ten dzień &rarr;
-            </button>
-          )}
-        </div>
+        <SwipeActions
+          onLeft={handleSwipeLeft}
+          onRight={handleSwipeRight}
+          disabled={isAnimating}
+          currentDay={currentDay}
+          onSkipDay={handleSkipDay}
+        />
       </div>
 
       {/* Meal Detail Modal */}
-      <MealModal meal={modalMeal} onClose={() => setModalMeal(null)} people={settings.people} />
+      <MealModal meal={modalMeal} onClose={() => setModalMeal(null)} />
     </div>
   )
 }
