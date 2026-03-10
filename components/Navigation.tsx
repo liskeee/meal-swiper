@@ -36,7 +36,6 @@ export default function Navigation({ activeView }: NavigationProps) {
                 isActive ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'
               }`}
             >
-              {isActive && <div className="absolute -top-1 w-12 h-1 bg-primary rounded-full"></div>}
               <span
                 className="material-symbols-outlined text-xl sm:text-2xl"
                 style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
