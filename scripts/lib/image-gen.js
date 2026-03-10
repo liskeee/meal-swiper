@@ -14,10 +14,10 @@ const NANO_BANANA = path.join(
 
 const IMAGES_DIR = path.join(import.meta.dirname, '..', 'generated-images')
 
-// Cloudflare R2 config
-const R2_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || '67ffcd3e6a0a421156f625214d812dbd'
-const R2_BUCKET = 'meal-swiper-images'
-const R2_PUBLIC_URL = 'https://pub-63e342fa526e4c4aa923e395e32cf668.r2.dev'
+// Cloudflare R2 config (from env)
+const R2_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID
+const R2_BUCKET = process.env.R2_BUCKET || 'meal-swiper-images'
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL
 
 function slugify(str) {
   return str
@@ -31,7 +31,9 @@ function slugify(str) {
 
 async function uploadToR2(filePath, objectKey) {
   const apiToken = process.env.CLOUDFLARE_API_TOKEN
-  if (!apiToken) throw new Error('Missing CLOUDFLARE_API_TOKEN for R2 upload')
+  if (!apiToken) throw new Error('Missing CLOUDFLARE_API_TOKEN env var')
+  if (!R2_ACCOUNT_ID) throw new Error('Missing CLOUDFLARE_ACCOUNT_ID env var')
+  if (!R2_PUBLIC_URL) throw new Error('Missing R2_PUBLIC_URL env var')
 
   const imageBuffer = fs.readFileSync(filePath)
 
