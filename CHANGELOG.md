@@ -1,3 +1,19 @@
+# Changelog
+
+Wszystkie znaczące zmiany w tym projekcie będą dokumentowane w tym pliku.
+Format oparty jest na [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [1.6.0] (2026-03-10)
+
+### Features
+
+- **GitHub Professionalization**: Dodano szablony Issue i PR, CONTRIBUTING.md, LICENSE oraz profesjonalny system etykiet (labels).
+- **Multi-tenant Architecture Plan**: Przygotowano bazę pod obsługę wielu użytkowników przez unikalne tokeny URL (Issue #13).
+
+### Chores
+
+- **Cleanup**: Usunięto nieużywany plik `REFACTOR_PLAN.md`.
+
 ## [1.5.2](https://github.com/liskeee/meal-swiper/compare/v1.5.1...v1.5.2) (2026-03-10)
 
 ### Bug Fixes
@@ -136,36 +152,3 @@
 - Tinder-style SwipeView z framer-motion ([e743d36](https://github.com/liskeee/meal-swiper/commit/e743d368de569628ba35e520ec1eca5ba1d6b670))
 - types, notion lib, storage helpers, utils ([b444a06](https://github.com/liskeee/meal-swiper/commit/b444a06878837d5f7c0d075a3fdb30c2a4762ad2))
 - upgrade Next.js 16.1.6 + React 19, ESLint flat config, fix confetti Math.random, linter w pre-commit ([f33cabd](https://github.com/liskeee/meal-swiper/commit/f33cabdd830876e585adc35e9887655b50f4f5c1))
-
-# Changelog
-
-All notable changes to Meal Swiper will be documented in this file.
-
-This project uses [Semantic Release](https://github.com/semantic-release/semantic-release) for automated versioning.
-
-## [2.0.0] - 2026-03-10
-
-### 🚀 Features
-
-- Migration from Notion + KV to Cloudflare D1 (SQLite)
-- Recipe enrichment with inline scaled amounts and AmountBadge components
-- Polish stemming for ingredient matching
-- Dynamic scaling of kcal/protein/shopping list by person count
-- Person names in settings
-- Desktop sidebar navigation with full-width items
-- DaySelector reusable component
-- Swipe state persistence across tab switches
-
-### 🐛 Bug Fixes
-
-- Background swipe cards now show full info (opis, kcal, counter)
-- Swipe cards no longer reshuffle after meal selection
-- LoadingSpinner fix
-- Swipe animation fix
-- Duplicate meal prevention in swipe deck
-
-### 🏗️ Refactoring
-
-- Split oversized components (SwipeCard, SwipeStack, SwipeActions, DayCard)
-- Settings moved from 5th tab to header gear icon (4 tabs + ⚙️)
-- Removed unused files and Notion dependency

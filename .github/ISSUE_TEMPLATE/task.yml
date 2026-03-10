@@ -1,0 +1,32 @@
+name: "⚙️ Zadanie / Refaktor"
+description: "Zadania techniczne, sprzątanie kodu, refaktoryzacja"
+title: "[TASK] <opis zadania>"
+labels: ["type: refactor"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Opisz zadanie techniczne lub obszar do refaktoryzacji.
+  - type: textarea
+    id: goal
+    attributes:
+      label: "Cel zadania"
+      description: "Co chcemy osiągnąć? Dlaczego to jest ważne?"
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: "Szczegóły implementacji"
+      description: "Możesz wymienić listę kroków lub sugerowane zmiany w konkretnych plikach."
+  - type: textarea
+    id: checklist
+    attributes:
+      label: "Checklista"
+      description: "Co musi zostać zrobione, aby uznać zadanie za zakończone?"
+      placeholder: |
+        - [ ] Dodanie nowej kolumny w schema.sql
+        - [ ] Aktualizacja typów w types.ts
+        - [ ] Implementacja logiki w lib/db.ts
+    validations:
+      required: true

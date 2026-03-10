@@ -1,0 +1,45 @@
+name: "🐛 Bug Report"
+description: "Zgłoś błąd, abyśmy mogli go naprawić"
+title: "[BUG] <opis błędu>"
+labels: ["type: bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dziękujemy za zgłoszenie błędu! Prosimy o podanie jak największej ilości informacji.
+  - type: textarea
+    id: description
+    attributes:
+      label: "Opis błędu"
+      description: "Krótki i jasny opis tego, co się dzieje."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Kroki do reprodukcji"
+      description: "Jak wywołać ten błąd?"
+      placeholder: |
+        1. Wejdź na /swipe
+        2. Kliknij ikonę serca
+        3. Aplikacja się zawiesza...
+    validations:
+      required: true
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: "Oczekiwane vs Rzeczywiste zachowanie"
+      description: "Co powinno się stać, a co się stało?"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: "Środowisko"
+      description: "Przeglądarka, system operacyjny, wersja aplikacji"
+      placeholder: "Chrome (Mobile iOS), v0.1.0"
+  - type: textarea
+    id: visual-proof
+    attributes:
+      label: "Dowody wizualne"
+      description: "Linki do zrzutów ekranu lub wideo (opcjonalnie)"

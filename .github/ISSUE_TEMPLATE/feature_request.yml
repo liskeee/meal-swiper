@@ -1,0 +1,33 @@
+name: "✨ Feature Request"
+description: "Zaproponuj nową funkcjonalność lub zmianę"
+title: "[FEAT] <krótki opis nowej funkcji>"
+labels: ["type: feat"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Masz pomysł, jak ulepszyć Meal Swiper? Czekamy na Twoje sugestie!
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Jaki problem to rozwiązuje?"
+      description: "Czy jest to związane z brakiem jakiejś opcji, czy może proces jest zbyt skomplikowany?"
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Opisz proponowane rozwiązanie"
+      description: "Jak to powinno działać? Masz pomysł na interfejs lub logikę?"
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatywy"
+      description: "Czy rozważałeś jakieś inne sposoby rozwiązania tego problemu?"
+  - type: textarea
+    id: context
+    attributes:
+      label: "Dodatkowy kontekst"
+      description: "Zrzuty ekranu, przykłady z innych aplikacji itp."
