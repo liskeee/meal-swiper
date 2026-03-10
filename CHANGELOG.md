@@ -1,3 +1,9 @@
+## [1.5.1](https://github.com/liskeee/meal-swiper/compare/v1.5.0...v1.5.1) (2026-03-10)
+
+### Bug Fixes
+
+- resolve UI issues, broken images, names in macros, and impractical scaling ([05475e8](https://github.com/liskeee/meal-swiper/commit/05475e8f6604bad740ef3a7da808c1e5fa47bdc2))
+
 # [1.5.0](https://github.com/liskeee/meal-swiper/compare/v1.4.1...v1.5.0) (2026-03-10)
 
 ### Features
