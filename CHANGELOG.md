@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/liskeee/meal-swiper/compare/v1.1.1...v1.1.2) (2026-03-10)
+
+### Bug Fixes
+
+- center loading spinner vertically ([e46dc74](https://github.com/liskeee/meal-swiper/commit/e46dc74e77afee0518026bf9aefb382de32a50a8))
+
 ## [1.1.1](https://github.com/liskeee/meal-swiper/compare/v1.1.0...v1.1.1) (2026-03-10)
 
 ### Bug Fixes
