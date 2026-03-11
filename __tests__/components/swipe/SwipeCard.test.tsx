@@ -77,9 +77,9 @@ describe('SwipeCard', () => {
     expect(img.getAttribute('src')).toBe('https://example.com/photo.jpg')
   })
 
-  it('renders restaurant icon when no photo', () => {
-    render(<SwipeCard {...defaultProps} meal={mealNoPhoto} />)
-    expect(screen.getByText('restaurant')).toBeInTheDocument()
+  it('renders placeholder when no photo', () => {
+    const { container } = render(<SwipeCard {...defaultProps} meal={mealNoPhoto} />)
+    expect(container.querySelector('[aria-label="Makaron"]')).toBeInTheDocument()
   })
 
   it('shows kcal info (per person avg)', () => {
