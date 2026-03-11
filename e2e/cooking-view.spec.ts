@@ -23,6 +23,7 @@ test.describe('Cooking view', () => {
   })
 
   test('cooking view has correct title in header', async ({ page }) => {
-    await expect(page.getByText('Gotowanie')).toBeVisible({ timeout: 5000 })
+    // 'Gotowanie' may appear in both nav and header — use first()
+    await expect(page.getByText('Gotowanie').first()).toBeVisible({ timeout: 5000 })
   })
 })

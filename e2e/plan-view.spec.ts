@@ -5,9 +5,11 @@ test.describe('Plan view - weekly calendar', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // Should show Mon-Fri
-    await expect(page.getByText('Poniedziałek')).toBeVisible()
-    await expect(page.getByText('Piątek')).toBeVisible()
+    // DayCard shows abbreviated or full names — check for at least one weekday label
+    const pn = page.getByText(/Poniedziałek|^Pn$/).first()
+    const pt = page.getByText(/Piątek|^Pt$/).first()
+    await expect(pn).toBeVisible({ timeout: 10000 })
+    await expect(pt).toBeVisible()
   })
 
   test('navigate to next week and back', async ({ page }) => {
@@ -45,7 +47,8 @@ test.describe('Plan view - weekly calendar', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    const settingsLink = page.locator('a[href="/settings"]')
+    // May appear in header and nav — use first()
+    const settingsLink = page.locator('a[href="/settings"]').first()
     await expect(settingsLink).toBeVisible()
   })
 

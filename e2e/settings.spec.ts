@@ -11,7 +11,7 @@ test.describe('Settings page', () => {
   })
 
   test('shows "Ustawienia" title in header', async ({ page }) => {
-    await expect(page.getByText('Ustawienia')).toBeVisible()
+    await expect(page.getByText('Ustawienia').first()).toBeVisible()
   })
 
   test('shows people count control', async ({ page }) => {

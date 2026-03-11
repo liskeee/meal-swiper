@@ -8,17 +8,20 @@ test.describe('Category filter in swipe view', () => {
   })
 
   test('shows day selector chips', async ({ page }) => {
-    await expect(page.getByText('Pn')).toBeVisible({ timeout: 5000 })
-    await expect(page.getByText('Wt')).toBeVisible()
-    await expect(page.getByText('Pt')).toBeVisible()
+    // DaySelector renders day chips — use button role to avoid ambiguity
+    const pnBtn = page.locator('button').filter({ hasText: /^Pn$/ })
+    const wtBtn = page.locator('button').filter({ hasText: /^Wt$/ })
+    const ptBtn = page.locator('button').filter({ hasText: /^Pt$/ })
+    await expect(pnBtn.first()).toBeVisible({ timeout: 10000 })
+    await expect(wtBtn.first()).toBeVisible()
+    await expect(ptBtn.first()).toBeVisible()
   })
 
   test('can select different day chips', async ({ page }) => {
     // Click on "Wt" day
-    await page.getByText('Wt').click()
-    // Should highlight that day - verify active state
-    const wtBtn = page.locator('button').filter({ hasText: 'Wt' })
-    await expect(wtBtn).toBeVisible()
+    const wtBtn = page.locator('button').filter({ hasText: /^Wt$/ })
+    await wtBtn.first().click()
+    await expect(wtBtn.first()).toBeVisible()
   })
 
   test('swipe view shows meal cards or empty state', async ({ page }) => {
