@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Image health check', () => {
-  test('all meal photo_urls are non-empty and return 200 with image content-type', async ({ request }) => {
+  test('all meal photo_urls are non-empty and return 200 with image content-type', async ({
+    request,
+  }) => {
     // 1. Fetch meals from API
     const response = await request.get('/api/meals')
     expect(response.status()).toBe(200)
@@ -20,7 +22,9 @@ test.describe('Image health check', () => {
 
       // 3. photo_url must start with https://
       if (!meal.photo_url.startsWith('https://')) {
-        failures.push(`"${meal.nazwa}": photo_url doesn't start with https:// — got: ${meal.photo_url.slice(0, 50)}`)
+        failures.push(
+          `"${meal.nazwa}": photo_url doesn't start with https:// — got: ${meal.photo_url.slice(0, 50)}`
+        )
         continue
       }
 
@@ -31,14 +35,18 @@ test.describe('Image health check', () => {
         })
 
         if (imgResponse.status() !== 200) {
-          failures.push(`"${meal.nazwa}": photo_url returned ${imgResponse.status()} — ${meal.photo_url}`)
+          failures.push(
+            `"${meal.nazwa}": photo_url returned ${imgResponse.status()} — ${meal.photo_url}`
+          )
           continue
         }
 
         // 5. Content-Type must be image/*
         const contentType = imgResponse.headers()['content-type'] || ''
         if (!contentType.startsWith('image/')) {
-          failures.push(`"${meal.nazwa}": Content-Type is "${contentType}", expected image/* — ${meal.photo_url}`)
+          failures.push(
+            `"${meal.nazwa}": Content-Type is "${contentType}", expected image/* — ${meal.photo_url}`
+          )
         }
       } catch (err) {
         failures.push(`"${meal.nazwa}": fetch failed — ${meal.photo_url} — ${err}`)
