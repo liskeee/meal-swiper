@@ -113,11 +113,11 @@ describe('SwipeCard', () => {
   })
 
   it('shows placeholder when image fails to load', () => {
-    render(<SwipeCard {...defaultProps} />)
-    const img = document.querySelector('img')
-    expect(img).toBeTruthy()
+    const { container } = render(<SwipeCard {...defaultProps} />)
+    const img = container.querySelector('img')
+    expect(img).not.toBeNull()
+    // Trigger error → imgError=true → MealImagePlaceholder replaces the img
     fireEvent.error(img!)
-    // After error, img is gone and placeholder renders
-    expect(document.querySelector('img')).toBeNull()
+    expect(container.querySelector('img')).toBeNull()
   })
 })
